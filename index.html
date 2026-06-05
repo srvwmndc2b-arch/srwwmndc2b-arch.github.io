@@ -1,0 +1,2141 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>prime — dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Outfit', 'Inter', sans-serif;
+            color: #1a1a1a;
+            padding: 30px 36px;
+        }
+
+        .app-wrapper {
+            display: flex;
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 32px 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            height: fit-content;
+            max-height: 95vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .prime-logo {
+            font-size: 26px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 40px;
+            padding-left: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .prime-logo i {
+            font-size: 28px;
+            transition: transform 0.25s ease;
+        }
+        .prime-logo i:hover {
+            transform: scale(1.08);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #4a4a4a;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        .nav-item i {
+            width: 24px;
+            font-size: 1.2rem;
+            color: #5a5a5a;
+            transition: transform 0.2s;
+        }
+        .nav-item:hover {
+            background: #e8e8e8;
+            transform: translateX(6px);
+        }
+        .nav-item:hover i {
+            transform: scale(1.15);
+            color: #111;
+        }
+        .nav-item.active {
+            background: #e0e0e0;
+            color: #111;
+        }
+        .nav-item.active i {
+            color: #111;
+        }
+
+        .new-chat-btn {
+            margin-top: 28px;
+            margin-bottom: 16px;
+            background: #1a1a1a;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .new-chat-btn:hover {
+            background: #333;
+            transform: scale(1.02);
+        }
+
+        .dynamic-sections {
+            margin-top: 12px;
+        }
+        .section-divider {
+            height: 1px;
+            background: #ccc;
+            margin: 14px 0 16px;
+        }
+        .custom-nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            margin: 6px 0;
+            border-radius: 20px;
+            background: #f7f7f7;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .custom-nav-item:hover {
+            background: #e8e8e8;
+            transform: translateX(4px);
+        }
+        .custom-nav-item.active-custom {
+            background: #e0e0e0;
+            color: #111;
+        }
+        .custom-nav-item .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            flex: 1;
+        }
+        .custom-nav-item .left i {
+            font-size: 14px;
+        }
+        .custom-nav-item .left span {
+            cursor: text;
+        }
+        .delete-custom {
+            background: none;
+            border: none;
+            font-size: 14px;
+            color: #888;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 20px;
+        }
+        .delete-custom:hover {
+            color: #d33;
+            background: #f0f0f0;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .right-panel {
+            width: 380px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .education-card {
+            background: #1a1a1a;
+            border-radius: 32px;
+            padding: 32px 28px;
+            color: white;
+        }
+        .education-card h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .education-card p {
+            font-size: 15px;
+            opacity: 0.7;
+        }
+
+        .habits-header-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        .add-habit-btn {
+            background: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 40px;
+            padding: 10px 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .add-habit-btn:hover {
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+            background: #fafafa;
+        }
+
+        .habits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .habit-card {
+            background: #fff;
+            border-radius: 28px;
+            padding: 22px 24px;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        .habit-card:hover {
+            transform: translateY(-4px);
+        }
+        .habit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .habit-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: inherit;
+            padding: 4px 8px;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        .habit-name:hover {
+            background: #f0f0f0;
+        }
+        .habit-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .habit-btn {
+            background: none;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            color: #888;
+            padding: 6px;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .habit-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .habit-btn.delete:hover {
+            color: #d33;
+        }
+        .streak {
+            text-align: center;
+            margin: 16px 0;
+        }
+        .streak-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .streak-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+        .progress-bar-bg {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 10px;
+            margin: 16px 0 12px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #1a1a1a;
+            height: 8px;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .habit-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+        }
+        .days-text {
+            font-size: 12px;
+            color: #888;
+        }
+        .check-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .check-btn.completed {
+            background: #1a1a1a;
+            color: white;
+        }
+        .check-btn:hover {
+            transform: scale(1.05);
+            background: #e0e0e0;
+        }
+
+        .all-done-panel {
+            background: #fff;
+            border-radius: 28px;
+            padding: 24px 28px;
+            margin-top: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .all-done-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .all-done-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #555;
+        }
+        .all-done-number {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1;
+        }
+        .all-done-sub {
+            font-size: 13px;
+            color: #888;
+        }
+        .all-done-icon {
+            font-size: 48px;
+            color: #1a1a1a;
+            opacity: 0.3;
+        }
+
+        .calendar-card {
+            background: #fff;
+            border-radius: 32px;
+            padding: 24px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-header h4 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .month-nav {
+            display: flex;
+            gap: 16px;
+        }
+        .month-nav button {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 30px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+            margin: 16px 0;
+        }
+        .weekday {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            padding: 6px 0;
+        }
+        .day-button {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            position: relative;
+        }
+        .day-button.today {
+            background: #1a1a1a;
+            color: white;
+        }
+        .day-button.other-month {
+            color: #bbb;
+        }
+        .day-button svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 44px;
+            height: 44px;
+            pointer-events: none;
+            transform: rotate(-90deg);
+        }
+        .day-button svg circle {
+            fill: none;
+            stroke: #1a1a1a;
+            stroke-width: 3;
+            stroke-dasharray: 132;
+            transition: stroke-dashoffset 0.3s;
+        }
+        .days-left {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #ececec;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .finance-card {
+            background: #1a1a1a;
+            border-radius: 32px;
+            padding: 28px;
+            color: white;
+        }
+        .finance-title {
+            font-size: 14px;
+            opacity: 0.6;
+            margin-bottom: 20px;
+        }
+        .balance-amount {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .action-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            border: none;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-circle:hover {
+            background: rgba(255,255,255,0.25);
+            transform: scale(1.05);
+        }
+
+        .transactions-card {
+            background: #fff;
+            border-radius: 32px;
+            padding: 24px;
+        }
+        .transactions-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .empty-transactions {
+            text-align: center;
+            padding: 40px 20px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .transaction-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .transaction-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            color: #333;
+        }
+        .transaction-info .name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .transaction-info .date {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+        .transaction-amount.income { color: #2e7d32; }
+        .transaction-amount.expense { color: #c62828; }
+
+        .chart-card, .allocation-card {
+            background: #fff;
+            border-radius: 32px;
+            padding: 24px;
+        }
+        .chart-card h4, .allocation-card h4 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            height: 180px;
+            width: 100%;
+        }
+        .allocation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .allocation-name {
+            font-weight: 500;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        .allocation-name:hover {
+            background: #f0f0f0;
+        }
+        .allocation-amount {
+            font-weight: 600;
+        }
+        .allocation-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .allocation-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px;
+        }
+        .allocation-btn:hover {
+            color: #333;
+        }
+        .add-allocation-btn {
+            margin-top: 16px;
+            padding: 12px;
+            width: 100%;
+            background: #f5f5f5;
+            border: 1px dashed #ccc;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #888;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .add-allocation-btn:hover {
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        .notes-card {
+            background: #fff;
+            border-radius: 32px;
+            padding: 24px;
+        }
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .notes-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .add-note-btn {
+            background: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .add-note-btn:hover {
+            background: #333;
+        }
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .note-item {
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: 0.2s;
+        }
+        .note-item:hover {
+            background: #f0f0f0;
+        }
+        .note-content {
+            flex: 1;
+            cursor: pointer;
+        }
+        .note-text {
+            font-size: 15px;
+            line-height: 1.4;
+            color: #333;
+        }
+        .note-date {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+        .note-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .note-btn {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .note-btn:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .note-btn.delete:hover {
+            color: #d33;
+        }
+        .empty-notes {
+            text-align: center;
+            padding: 60px 20px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .custom-page-content {
+            background: #fff;
+            border-radius: 32px;
+            padding: 32px;
+        }
+        .custom-page-content h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .custom-page-content p {
+            color: #666;
+            line-height: 1.5;
+        }
+        .custom-notes-list {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .custom-note-item {
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .custom-note-text {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+        }
+        .custom-note-date {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 6px;
+        }
+        .custom-note-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .add-custom-note-btn {
+            margin-top: 16px;
+            padding: 12px;
+            width: 100%;
+            background: #f5f5f5;
+            border: 1px dashed #ccc;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #888;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .add-custom-note-btn:hover {
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .transaction-modal {
+            background: white;
+            border-radius: 48px;
+            width: 400px;
+            padding: 32px;
+        }
+        .transaction-modal h3 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .transaction-modal input, .transaction-modal textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid #e0e0e0;
+            border-radius: 32px;
+            font-family: inherit;
+            font-size: 16px;
+            margin-bottom: 16px;
+            background: #fafafa;
+        }
+        .transaction-modal textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        .modal-submit {
+            background: #1a1a1a;
+            color: white;
+        }
+        .modal-cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <div class="sidebar">
+        <div class="prime-logo">
+            <i class="fas fa-mask"></i> prime
+        </div>
+        <div class="nav-item" data-section="home">
+            <i class="fas fa-home"></i> Home
+        </div>
+        <div class="nav-item" data-section="finance">
+            <i class="fas fa-wallet"></i> Finance
+        </div>
+        <div class="nav-item" data-section="notes">
+            <i class="fas fa-sticky-note"></i> Notes
+        </div>
+
+        <button class="new-chat-btn" id="newChatBtn">
+            <i class="fas fa-plus-circle"></i> new chat
+        </button>
+        <div id="customSectionsContainer" class="dynamic-sections"></div>
+    </div>
+
+    <div class="main-content" id="mainContent"></div>
+    <div class="right-panel" id="rightPanel"></div>
+</div>
+
+<div id="financeModal" class="modal-overlay">
+    <div class="transaction-modal">
+        <h3 id="modalTitleFinance">Пополнение</h3>
+        <input type="date" id="transactionDate" value="">
+        <input type="number" id="transactionAmount" placeholder="Сумма" step="0.01">
+        <div class="modal-buttons">
+            <button class="modal-cancel" id="cancelFinanceModal">Отмена</button>
+            <button class="modal-submit" id="submitFinanceModal">Добавить</button>
+        </div>
+    </div>
+</div>
+
+<div id="allocationModal" class="modal-overlay">
+    <div class="transaction-modal">
+        <h3>Добавить статью бюджета</h3>
+        <input type="text" id="allocationName" placeholder="Название (например: Машина, Квартира)">
+        <input type="number" id="allocationSum" placeholder="Сумма" step="0.01">
+        <div class="modal-buttons">
+            <button class="modal-cancel" id="cancelAllocationModal">Отмена</button>
+            <button class="modal-submit" id="submitAllocationModal">Добавить</button>
+        </div>
+    </div>
+</div>
+
+<div id="noteModal" class="modal-overlay">
+    <div class="transaction-modal">
+        <h3 id="noteModalTitle">Новая заметка</h3>
+        <textarea id="noteText" placeholder="Текст заметки..."></textarea>
+        <div class="modal-buttons">
+            <button class="modal-cancel" id="cancelNoteModal">Отмена</button>
+            <button class="modal-submit" id="submitNoteModal">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<div id="customNoteModal" class="modal-overlay">
+    <div class="transaction-modal">
+        <h3 id="customNoteModalTitle">Новая заметка</h3>
+        <textarea id="customNoteText" placeholder="Текст заметки..."></textarea>
+        <div class="modal-buttons">
+            <button class="modal-cancel" id="cancelCustomNoteModal">Отмена</button>
+            <button class="modal-submit" id="submitCustomNoteModal">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== HOME (HABITS) DATA ==========
+    const startDateSummer = new Date(2026, 5, 1);
+    const endDateSummer = new Date(2026, 7, 31);
+    const totalDays = 92;
+    
+    function getDayOfSummer() {
+        const today = new Date();
+        if (today < startDateSummer) return 0;
+        if (today > endDateSummer) return totalDays;
+        const diff = Math.floor((today - startDateSummer) / (1000 * 60 * 60 * 24));
+        return diff + 1;
+    }
+    
+    let habits = [];
+    
+    function loadHabits() {
+        const saved = localStorage.getItem('primeHabits');
+        if (saved) {
+            habits = JSON.parse(saved);
+        } else {
+            habits = [
+                { id: 0, name: 'Mathematical', completedDays: [], currentStreak: 0, maxStreak: 0 },
+                { id: 1, name: 'Literature', completedDays: [], currentStreak: 0, maxStreak: 0 },
+                { id: 2, name: 'Music', completedDays: [], currentStreak: 0, maxStreak: 0 },
+                { id: 3, name: 'Design', completedDays: [], currentStreak: 0, maxStreak: 0 }
+            ];
+        }
+        updateAllStreaks();
+    }
+    
+    function saveHabits() {
+        localStorage.setItem('primeHabits', JSON.stringify(habits));
+    }
+    
+    function updateStreak(habit) {
+        const todayNum = getDayOfSummer();
+        let streak = 0;
+        for (let i = todayNum; i >= 1; i--) {
+            if (habit.completedDays.includes(i)) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        habit.currentStreak = streak;
+        if (streak > habit.maxStreak) habit.maxStreak = streak;
+    }
+    
+    function updateAllStreaks() {
+        habits.forEach(h => updateStreak(h));
+    }
+    
+    function toggleDay(habitId, dayNum) {
+        const habit = habits.find(h => h.id === habitId);
+        if (!habit) return;
+        const index = habit.completedDays.indexOf(dayNum);
+        if (index === -1) {
+            habit.completedDays.push(dayNum);
+        } else {
+            habit.completedDays.splice(index, 1);
+        }
+        habit.completedDays.sort((a,b) => a-b);
+        updateStreak(habit);
+        saveHabits();
+        renderHabitsGrid();
+        renderAllDonePanel();
+    }
+    
+    function addHabit() {
+        const newId = Date.now();
+        habits.push({
+            id: newId,
+            name: 'Новая привычка',
+            completedDays: [],
+            currentStreak: 0,
+            maxStreak: 0
+        });
+        saveHabits();
+        renderHabitsGrid();
+        renderAllDonePanel();
+    }
+    
+    function deleteHabit(habitId) {
+        if (confirm('Удалить эту привычку?')) {
+            habits = habits.filter(h => h.id !== habitId);
+            saveHabits();
+            renderHabitsGrid();
+            renderAllDonePanel();
+        }
+    }
+    
+    function resetHabit(habitId) {
+        if (confirm('Обнулить счётчик дней? Прогресс за всё лето тоже сбросится.')) {
+            const habit = habits.find(h => h.id === habitId);
+            if (habit) {
+                habit.completedDays = [];
+                habit.currentStreak = 0;
+                saveHabits();
+                renderHabitsGrid();
+                renderAllDonePanel();
+            }
+        }
+    }
+    
+    function renameHabit(habitId, newName) {
+        const habit = habits.find(h => h.id === habitId);
+        if (habit && newName.trim()) {
+            habit.name = newName.trim();
+            saveHabits();
+            renderHabitsGrid();
+        }
+    }
+    
+    function getProgressPercent(habit) {
+        return (habit.completedDays.length / totalDays) * 100;
+    }
+    
+    function getAllHabitsDoneDays() {
+        if (habits.length === 0) return [];
+        const allDays = [];
+        for (let day = 1; day <= totalDays; day++) {
+            let allCompleted = true;
+            for (let habit of habits) {
+                if (!habit.completedDays.includes(day)) {
+                    allCompleted = false;
+                    break;
+                }
+            }
+            if (allCompleted) {
+                allDays.push(day);
+            }
+        }
+        return allDays;
+    }
+    
+    function getAllDoneCount() {
+        return getAllHabitsDoneDays().length;
+    }
+    
+    function renderAllDonePanel() {
+        const container = document.getElementById('allDonePanel');
+        if (!container) return;
+        const count = getAllDoneCount();
+        container.innerHTML = `
+            <div class="all-done-left">
+                <div class="all-done-label">Все привычки за день</div>
+                <div class="all-done-number">${count}</div>
+                <div class="all-done-sub">дней выполнены все привычки</div>
+            </div>
+            <div class="all-done-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+        `;
+    }
+    
+    function renderHabitsGrid() {
+        const container = document.getElementById('habitsGrid');
+        if (!container) return;
+        
+        let html = '<div class="habits-grid">';
+        habits.forEach(habit => {
+            const progress = getProgressPercent(habit);
+            html += `
+                <div class="habit-card">
+                    <div class="habit-header">
+                        <span class="habit-name" data-id="${habit.id}" onclick="startRename(${habit.id}, '${escapeHtml(habit.name)}')">${escapeHtml(habit.name)}</span>
+                        <div class="habit-actions">
+                            <button class="habit-btn" onclick="resetHabit(${habit.id})" title="Обнулить счётчик"><i class="fas fa-undo-alt"></i></button>
+                            <button class="habit-btn delete" onclick="deleteHabit(${habit.id})" title="Удалить"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                    <div class="streak">
+                        <div class="streak-number">${habit.currentStreak}</div>
+                        <div class="streak-label">дней подряд</div>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-fill" style="width: ${progress}%;"></div>
+                    </div>
+                    <div class="habit-footer">
+                        <span class="days-text">${habit.completedDays.length} / ${totalDays} дней</span>
+                        <button class="check-btn ${isTodayCompleted(habit) ? 'completed' : ''}" onclick="toggleToday(${habit.id})">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+    
+    function isTodayCompleted(habit) {
+        const todayNum = getDayOfSummer();
+        return habit.completedDays.includes(todayNum);
+    }
+    
+    function toggleToday(habitId) {
+        const todayNum = getDayOfSummer();
+        if (todayNum < 1 || todayNum > totalDays) return;
+        toggleDay(habitId, todayNum);
+    }
+    
+    window.toggleToday = toggleToday;
+    window.deleteHabit = deleteHabit;
+    window.resetHabit = resetHabit;
+    window.addHabit = addHabit;
+    
+    function startRename(habitId, currentName) {
+        const newName = prompt('Введите новое название:', currentName);
+        if (newName && newName.trim()) {
+            renameHabit(habitId, newName);
+        }
+    }
+    window.startRename = startRename;
+    
+    // ========== КАЛЕНДАРЬ ДЛЯ HOME ==========
+    let currentCalendarMonth = 5;
+    const calendarYear = 2026;
+    const monthNames = ['ИЮНЬ 2026', 'ИЮЛЬ 2026', 'АВГУСТ 2026'];
+    const weekdaysRu = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+    
+    let dayData = {};
+    
+    function loadDayData() {
+        const saved = localStorage.getItem('primeDayTracker');
+        if (saved) dayData = JSON.parse(saved);
+        else dayData = {};
+    }
+    
+    function saveDayData() {
+        localStorage.setItem('primeDayTracker', JSON.stringify(dayData));
+    }
+    
+    function getDateKey(year, month, day) {
+        return `${year}-${month}-${day}`;
+    }
+    
+    function getDefaultDayData() {
+        return { routine: { ALL: false, MW: false, NP: false }, focus: 0, keyTasks: [] };
+    }
+    
+    function getDayData(year, month, day) {
+        const key = getDateKey(year, month, day);
+        if (!dayData[key]) dayData[key] = getDefaultDayData();
+        return dayData[key];
+    }
+    
+    function setDayData(year, month, day, data) {
+        const key = getDateKey(year, month, day);
+        dayData[key] = data;
+        saveDayData();
+    }
+    
+    function calculateScore(data) {
+        let score = 0;
+        if (data.routine.ALL) score++;
+        if (data.routine.MW) score++;
+        if (data.routine.NP) score++;
+        score += data.focus;
+        const completed = data.keyTasks.filter(t => t.completed).length;
+        score += Math.min(completed, 5);
+        return Math.min(score, 10);
+    }
+    
+    function getScoreForDay(year, month, day) {
+        const key = getDateKey(year, month, day);
+        if (!dayData[key]) return 0;
+        return calculateScore(dayData[key]);
+    }
+    
+    function getCircleProgress(score) {
+        if (score === 0) return 132;
+        if (score <= 4) return 132;
+        if (score <= 6) return 99;
+        if (score <= 8) return 33;
+        return 0;
+    }
+    
+    function getDaysInMonth(month, year) {
+        return new Date(year, month + 1, 0).getDate();
+    }
+    
+    function getFirstDayIndex(month, year) {
+        const date = new Date(year, month, 1);
+        let dayOfWeek = date.getDay();
+        return dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    }
+    
+    function renderCalendar(month, year) {
+        const daysInMonth = getDaysInMonth(month, year);
+        const firstDayIndex = getFirstDayIndex(month, year);
+        const today = new Date();
+        const isCurrentMonthReal = (today.getMonth() === month && today.getFullYear() === year);
+        const todayDate = today.getDate();
+        const prevMonthDays = getDaysInMonth(month - 1, year);
+        
+        let html = '<div class="calendar-grid">';
+        for (let w of weekdaysRu) html += `<div class="weekday">${w}</div>`;
+        
+        let dayCounter = 1, nextMonthDay = 1;
+        
+        for (let i = 0; i < 42; i++) {
+            let dayNum, isCurrentMonth, isToday = false;
+            if (i < firstDayIndex) {
+                dayNum = prevMonthDays - (firstDayIndex - i) + 1;
+                isCurrentMonth = false;
+            } else if (dayCounter <= daysInMonth) {
+                dayNum = dayCounter;
+                isCurrentMonth = true;
+                isToday = (isCurrentMonthReal && dayCounter === todayDate);
+                dayCounter++;
+            } else {
+                dayNum = nextMonthDay;
+                isCurrentMonth = false;
+                nextMonthDay++;
+            }
+            
+            let progress = 132;
+            if (isCurrentMonth) {
+                const score = getScoreForDay(year, month, dayNum);
+                progress = getCircleProgress(score);
+            }
+            
+            let todayClass = isToday ? 'today' : '';
+            let otherClass = !isCurrentMonth ? 'other-month' : '';
+            
+            html += `<div style="display:flex;justify-content:center;">
+                        <button class="day-button ${todayClass} ${otherClass}" data-day="${dayNum}" data-month="${month}" data-year="${year}" data-current="${isCurrentMonth}">
+                            <span>${dayNum}</span>
+                            <svg viewBox="0 0 50 50">
+                                <circle cx="25" cy="25" r="21" stroke-dasharray="132" stroke-dashoffset="${progress}"></circle>
+                            </svg>
+                        </button>
+                    </div>`;
+        }
+        html += '</div>';
+        return html;
+    }
+    
+    function updateCalendar() {
+        const container = document.getElementById('calendarContainer');
+        if (container) {
+            container.innerHTML = renderCalendar(currentCalendarMonth, calendarYear);
+            document.getElementById('currentMonthDisplay').innerText = monthNames[currentCalendarMonth - 5];
+            
+            document.querySelectorAll('.day-button[data-current="true"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const day = parseInt(btn.dataset.day);
+                    const month = parseInt(btn.dataset.month);
+                    const year = parseInt(btn.dataset.year);
+                    openTaskModal(year, month, day);
+                });
+            });
+        }
+        updateDaysLeft();
+    }
+    
+    function updateDaysLeft() {
+        const endSummer = new Date(2026, 7, 31);
+        const diff = Math.ceil((endSummer - new Date()) / (1000 * 60 * 60 * 24));
+        const daysLeft = document.getElementById('daysLeftValue');
+        if (daysLeft) daysLeft.innerText = diff > 0 ? diff : 0;
+    }
+    
+    function prevMonth() { if (currentCalendarMonth > 5) { currentCalendarMonth--; updateCalendar(); } }
+    function nextMonth() { if (currentCalendarMonth < 7) { currentCalendarMonth++; updateCalendar(); } }
+    
+    let currentYear, currentMonth, currentDay, currentData = null;
+    
+    function openTaskModal(year, month, day) {
+        currentYear = year; currentMonth = month; currentDay = day;
+        currentData = getDayData(year, month, day);
+        
+        document.getElementById('modalDayNum').innerText = day;
+        document.getElementById('taskALL').checked = currentData.routine.ALL;
+        document.getElementById('taskMW').checked = currentData.routine.MW;
+        document.getElementById('taskNP').checked = currentData.routine.NP;
+        
+        document.querySelectorAll('#taskModal .focus-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (parseInt(btn.dataset.focus) === currentData.focus) btn.classList.add('active');
+        });
+        
+        renderKeyTasks();
+        updateModalScore();
+        document.getElementById('taskModal').classList.add('active');
+    }
+    
+    function renderKeyTasks() {
+        const list = document.getElementById('keyTasksList');
+        list.innerHTML = '';
+        currentData.keyTasks.forEach((task, idx) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <input type="checkbox" data-key-idx="${idx}" ${task.completed ? 'checked' : ''}>
+                <span style="flex:1; ${task.completed ? 'text-decoration:line-through;color:#999;' : ''}">${escapeHtml(task.text)}</span>
+                <button data-key-idx="${idx}" class="delete-key-task" style="background:none;border:none;color:#bbb;cursor:pointer;"><i class="fas fa-times"></i></button>
+            `;
+            list.appendChild(li);
+        });
+        
+        document.querySelectorAll('#keyTasksList input').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const idx = parseInt(cb.dataset.keyIdx);
+                currentData.keyTasks[idx].completed = cb.checked;
+                setDayData(currentYear, currentMonth, currentDay, currentData);
+                updateModalScore();
+                updateCalendar();
+            });
+        });
+        
+        document.querySelectorAll('.delete-key-task').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.keyIdx);
+                currentData.keyTasks.splice(idx, 1);
+                setDayData(currentYear, currentMonth, currentDay, currentData);
+                renderKeyTasks();
+                updateModalScore();
+                updateCalendar();
+            });
+        });
+    }
+    
+    function updateModalScore() {
+        const score = calculateScore(currentData);
+        document.getElementById('totalScoreValue').innerText = `${score}/10`;
+    }
+    
+    function saveCurrentData() {
+        currentData.routine = {
+            ALL: document.getElementById('taskALL').checked,
+            MW: document.getElementById('taskMW').checked,
+            NP: document.getElementById('taskNP').checked
+        };
+        const activeFocus = document.querySelector('#taskModal .focus-btn.active');
+        currentData.focus = activeFocus ? parseInt(activeFocus.dataset.focus) : 0;
+        setDayData(currentYear, currentMonth, currentDay, currentData);
+        updateModalScore();
+        updateCalendar();
+    }
+    
+    // ========== FINANCE ==========
+    let balance = 0;
+    let transactions = [];
+    let allocations = [];
+    
+    function loadFinanceData() {
+        const savedBalance = localStorage.getItem('primeBalance');
+        const savedTransactions = localStorage.getItem('primeTransactions');
+        const savedAllocations = localStorage.getItem('primeAllocations');
+        if (savedBalance) balance = parseFloat(savedBalance);
+        else balance = 0;
+        if (savedTransactions) transactions = JSON.parse(savedTransactions);
+        else transactions = [];
+        if (savedAllocations) allocations = JSON.parse(savedAllocations);
+        else allocations = [];
+    }
+    
+    function saveFinanceData() {
+        localStorage.setItem('primeBalance', balance);
+        localStorage.setItem('primeTransactions', JSON.stringify(transactions));
+        localStorage.setItem('primeAllocations', JSON.stringify(allocations));
+    }
+    
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    }
+    
+    function updateBalanceDisplay() {
+        const el = document.getElementById('balanceAmount');
+        if (el) el.innerText = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    
+    function renderTransactions() {
+        const container = document.getElementById('transactionsList');
+        if (!container) return;
+        container.innerHTML = '';
+        if (transactions.length === 0) {
+            container.innerHTML = '<div class="empty-transactions">Нет транзакций</div>';
+            return;
+        }
+        [...transactions].reverse().forEach(t => {
+            const div = document.createElement('div');
+            div.className = 'transaction-item';
+            const isIncome = t.type === 'income';
+            div.innerHTML = `
+                <div class="transaction-left">
+                    <div class="transaction-icon"><i class="fas ${isIncome ? 'fa-arrow-down' : 'fa-arrow-up'}"></i></div>
+                    <div class="transaction-info">
+                        <div class="name">${escapeHtml(t.name)}</div>
+                        <div class="date">${formatDate(t.date)}</div>
+                    </div>
+                </div>
+                <div class="transaction-amount ${isIncome ? 'income' : 'expense'}">${isIncome ? '+' : '-'} $${t.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+            `;
+            container.appendChild(div);
+        });
+    }
+    
+    function getBalanceDataLast90Days() {
+        const today = new Date();
+        const data = [];
+        for (let i = 89; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            let bal = 0;
+            for (let t of transactions) {
+                if (t.date <= dateStr) {
+                    if (t.type === 'income') bal += t.amount;
+                    else bal -= t.amount;
+                }
+            }
+            data.push(bal);
+        }
+        return data;
+    }
+    
+    function drawChart() {
+        const container = document.getElementById('chartContainer');
+        if (!container) return;
+        const data = getBalanceDataLast90Days();
+        const maxVal = Math.max(...data, 100);
+        const minVal = Math.min(...data, 0);
+        const range = maxVal - minVal || 1;
+        const width = container.clientWidth - 40;
+        const height = 140;
+        const padding = 20;
+        const getX = (i) => padding + (i / (data.length - 1)) * (width - padding * 2);
+        const getY = (val) => padding + (1 - (val - minVal) / range) * (height - padding * 2);
+        let points = '';
+        let areaPoints = `${padding},${height - padding} `;
+        for (let i = 0; i < data.length; i++) {
+            const x = getX(i);
+            const y = getY(data[i]);
+            points += `${x},${y} `;
+            areaPoints += `${x},${y} `;
+        }
+        areaPoints += `${getX(data.length - 1)},${height - padding} ${padding},${height - padding}`;
+        container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" style="width:100%; height:140px;"><polygon points="${areaPoints}" fill="rgba(26,26,26,0.08)" /><polyline points="${points}" fill="none" stroke="#1a1a1a" stroke-width="2" /></svg>`;
+    }
+    
+    function renderAllocations() {
+        const container = document.getElementById('allocationsList');
+        if (!container) return;
+        if (allocations.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">Нет статей бюджета</div>';
+        } else {
+            container.innerHTML = '';
+            allocations.forEach((alloc, idx) => {
+                const div = document.createElement('div');
+                div.className = 'allocation-item';
+                div.innerHTML = `
+                    <span class="allocation-name" onclick="editAllocation(${idx})">${escapeHtml(alloc.name)}</span>
+                    <span class="allocation-amount">$${alloc.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                    <div class="allocation-actions">
+                        <button class="allocation-btn" onclick="editAllocation(${idx})"><i class="fas fa-edit"></i></button>
+                        <button class="allocation-btn" onclick="deleteAllocation(${idx})"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+    }
+    
+    function addAllocation(name, amount) {
+        allocations.push({ name: name, amount: amount });
+        saveFinanceData();
+        renderAllocations();
+    }
+    
+    function deleteAllocation(idx) {
+        if (confirm('Удалить эту статью бюджета?')) {
+            allocations.splice(idx, 1);
+            saveFinanceData();
+            renderAllocations();
+        }
+    }
+    
+    function editAllocation(idx) {
+        const alloc = allocations[idx];
+        const newName = prompt('Новое название:', alloc.name);
+        const newAmount = parseFloat(prompt('Новая сумма:', alloc.amount));
+        if (newName && newName.trim()) alloc.name = newName.trim();
+        if (!isNaN(newAmount) && newAmount >= 0) alloc.amount = newAmount;
+        saveFinanceData();
+        renderAllocations();
+    }
+    
+    window.deleteAllocation = deleteAllocation;
+    window.editAllocation = editAllocation;
+    
+    let currentTransactionType = null;
+    function openTransactionModal(type) {
+        currentTransactionType = type;
+        document.getElementById('modalTitleFinance').innerText = type === 'income' ? 'Пополнение' : 'Снятие';
+        document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('transactionAmount').value = '';
+        document.getElementById('financeModal').classList.add('active');
+    }
+    
+    function addTransaction() {
+        const date = document.getElementById('transactionDate').value;
+        const amount = parseFloat(document.getElementById('transactionAmount').value);
+        if (!date || isNaN(amount) || amount <= 0) { alert('Введите корректную дату и сумму'); return; }
+        const name = currentTransactionType === 'income' ? 'Пополнение' : 'Снятие';
+        if (currentTransactionType === 'income') {
+            balance += amount;
+            transactions.push({ type: 'income', amount: amount, date: date, name: name });
+        } else {
+            if (amount > balance) { alert('Недостаточно средств!'); return; }
+            balance -= amount;
+            transactions.push({ type: 'expense', amount: amount, date: date, name: name });
+        }
+        saveFinanceData();
+        updateBalanceDisplay();
+        renderTransactions();
+        drawChart();
+        document.getElementById('financeModal').classList.remove('active');
+    }
+    
+    function openAllocationModal() {
+        document.getElementById('allocationName').value = '';
+        document.getElementById('allocationSum').value = '';
+        document.getElementById('allocationModal').classList.add('active');
+    }
+    
+    function addAllocationFromModal() {
+        const name = document.getElementById('allocationName').value.trim();
+        const amount = parseFloat(document.getElementById('allocationSum').value);
+        if (!name || isNaN(amount) || amount < 0) { alert('Введите корректное название и сумму'); return; }
+        addAllocation(name, amount);
+        document.getElementById('allocationModal').classList.remove('active');
+    }
+    
+    // ========== NOTES ==========
+    let notes = [];
+    
+    function loadNotes() {
+        const saved = localStorage.getItem('primeNotes');
+        if (saved) notes = JSON.parse(saved);
+        else notes = [];
+    }
+    
+    function saveNotes() {
+        localStorage.setItem('primeNotes', JSON.stringify(notes));
+    }
+    
+    function renderNotes() {
+        const container = document.getElementById('notesList');
+        if (!container) return;
+        if (notes.length === 0) {
+            container.innerHTML = '<div class="empty-notes">Нет заметок. Нажмите "+" чтобы добавить</div>';
+            return;
+        }
+        container.innerHTML = '';
+        [...notes].reverse().forEach((note, idx) => {
+            const originalIdx = notes.length - 1 - idx;
+            const div = document.createElement('div');
+            div.className = 'note-item';
+            div.innerHTML = `
+                <div class="note-content" onclick="editNote(${originalIdx})">
+                    <div class="note-text">${escapeHtml(note.text.length > 100 ? note.text.substring(0, 100) + '...' : note.text)}</div>
+                    <div class="note-date">${note.date}</div>
+                </div>
+                <div class="note-actions">
+                    <button class="note-btn" onclick="editNote(${originalIdx})"><i class="fas fa-edit"></i></button>
+                    <button class="note-btn delete" onclick="deleteNote(${originalIdx})"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+    
+    let currentEditNoteIndex = null;
+    function openNoteModal(editIndex = null) {
+        currentEditNoteIndex = editIndex;
+        if (editIndex !== null) {
+            document.getElementById('noteModalTitle').innerText = 'Редактировать заметку';
+            document.getElementById('noteText').value = notes[editIndex].text;
+        } else {
+            document.getElementById('noteModalTitle').innerText = 'Новая заметка';
+            document.getElementById('noteText').value = '';
+        }
+        document.getElementById('noteModal').classList.add('active');
+    }
+    
+    function saveNote() {
+        const text = document.getElementById('noteText').value.trim();
+        if (!text) { alert('Введите текст заметки'); return; }
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        
+        if (currentEditNoteIndex !== null) {
+            notes[currentEditNoteIndex] = { text: text, date: notes[currentEditNoteIndex].date };
+        } else {
+            notes.push({ text: text, date: dateStr });
+        }
+        saveNotes();
+        renderNotes();
+        document.getElementById('noteModal').classList.remove('active');
+        currentEditNoteIndex = null;
+    }
+    
+    function deleteNote(idx) {
+        if (confirm('Удалить заметку?')) {
+            notes.splice(idx, 1);
+            saveNotes();
+            renderNotes();
+        }
+    }
+    
+    function editNote(idx) {
+        openNoteModal(idx);
+    }
+    
+    window.editNote = editNote;
+    window.deleteNote = deleteNote;
+    window.openNoteModal = openNoteModal;
+    
+    // ========== CUSTOM SECTIONS (NEW CHAT) ==========
+    let customSections = [];
+    
+    function loadCustomSections() {
+        const stored = localStorage.getItem('primeCustomSections');
+        if (stored) {
+            customSections = JSON.parse(stored);
+        } else {
+            customSections = [];
+        }
+        renderCustomSections();
+    }
+    
+    function saveCustomSections() {
+        localStorage.setItem('primeCustomSections', JSON.stringify(customSections));
+    }
+    
+    function renderCustomSections() {
+        const container = document.getElementById('customSectionsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        if (customSections.length === 0) return;
+        
+        const divider = document.createElement('div');
+        divider.className = 'section-divider';
+        container.appendChild(divider);
+        
+        customSections.forEach((section, idx) => {
+            const div = document.createElement('div');
+            div.className = 'custom-nav-item';
+            div.setAttribute('data-custom-idx', idx);
+            div.innerHTML = `
+                <div class="left">
+                    <i class="fas ${section.icon || 'fa-note-sticky'}"></i>
+                    <span contenteditable="true" class="editable-section-name" data-idx="${idx}">${escapeHtml(section.name)}</span>
+                </div>
+                <button class="delete-custom" data-idx="${idx}"><i class="fas fa-trash-alt"></i></button>
+            `;
+            container.appendChild(div);
+        });
+        
+        document.querySelectorAll('.delete-custom').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.idx);
+                if (confirm('Удалить этот раздел?')) {
+                    customSections.splice(idx, 1);
+                    saveCustomSections();
+                    renderCustomSections();
+                    if (activeCustomSection === idx) {
+                        activeCustomSection = null;
+                        setActiveSection('home');
+                    }
+                }
+            });
+        });
+        
+        document.querySelectorAll('.editable-section-name').forEach(span => {
+            span.addEventListener('blur', (e) => {
+                const idx = parseInt(span.dataset.idx);
+                const newName = span.innerText.trim();
+                if (newName && customSections[idx]) {
+                    customSections[idx].name = newName;
+                    saveCustomSections();
+                } else if (!newName && customSections[idx]) {
+                    span.innerText = customSections[idx].name;
+                }
+            });
+            span.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    span.blur();
+                }
+            });
+        });
+        
+        document.querySelectorAll('.custom-nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-custom') || e.target.closest('.delete-custom')) return;
+                const idx = parseInt(item.dataset.customIdx);
+                if (!isNaN(idx) && customSections[idx]) {
+                    openCustomSection(idx);
+                }
+            });
+        });
+    }
+    
+    let activeCustomSection = null;
+    let customSectionNotes = {};
+    
+    function loadCustomSectionNotes() {
+        const saved = localStorage.getItem('primeCustomSectionNotes');
+        if (saved) {
+            customSectionNotes = JSON.parse(saved);
+        } else {
+            customSectionNotes = {};
+        }
+    }
+    
+    function saveCustomSectionNotes() {
+        localStorage.setItem('primeCustomSectionNotes', JSON.stringify(customSectionNotes));
+    }
+    
+    function openCustomSection(idx) {
+        activeCustomSection = idx;
+        const section = customSections[idx];
+        if (!section) return;
+        
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.custom-nav-item').forEach(el => el.classList.remove('active-custom'));
+        const customEl = document.querySelector(`.custom-nav-item[data-custom-idx="${idx}"]`);
+        if (customEl) customEl.classList.add('active-custom');
+        
+        if (!customSectionNotes[idx]) {
+            customSectionNotes[idx] = [];
+        }
+        
+        renderCustomSectionContent(section.name, idx);
+    }
+    
+    function renderCustomSectionContent(name, idx) {
+        const notes = customSectionNotes[idx] || [];
+        
+        const mainHtml = `
+            <div class="custom-page-content">
+                <h2>${escapeHtml(name)}</h2>
+                <p>Заметки в этом разделе</p>
+                <div id="customNotesList" class="custom-notes-list"></div>
+                <button class="add-custom-note-btn" onclick="openCustomNoteModal(${idx})">
+                    <i class="fas fa-plus-circle"></i> Добавить заметку
+                </button>
+            </div>
+        `;
+        
+        document.getElementById('mainContent').innerHTML = mainHtml;
+        document.getElementById('rightPanel').innerHTML = '';
+        
+        renderCustomNotesList(idx);
+    }
+    
+    function renderCustomNotesList(idx) {
+        const container = document.getElementById('customNotesList');
+        if (!container) return;
+        const notes = customSectionNotes[idx] || [];
+        
+        if (notes.length === 0) {
+            container.innerHTML = '<div class="empty-notes" style="padding:40px;">Нет заметок. Нажмите "Добавить заметку"</div>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        [...notes].reverse().forEach((note, noteIdx) => {
+            const originalIdx = notes.length - 1 - noteIdx;
+            const div = document.createElement('div');
+            div.className = 'custom-note-item';
+            div.innerHTML = `
+                <div class="custom-note-text" onclick="editCustomNote(${idx}, ${originalIdx})">
+                    <div>${escapeHtml(note.text.length > 150 ? note.text.substring(0, 150) + '...' : note.text)}</div>
+                    <div class="custom-note-date">${note.date}</div>
+                </div>
+                <div class="custom-note-actions">
+                    <button class="note-btn" onclick="editCustomNote(${idx}, ${originalIdx})"><i class="fas fa-edit"></i></button>
+                    <button class="note-btn delete" onclick="deleteCustomNote(${idx}, ${originalIdx})"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+    
+    let currentCustomSectionIdx = null;
+    let currentCustomNoteEditIdx = null;
+    
+    function openCustomNoteModal(sectionIdx, editNoteIdx = null) {
+        currentCustomSectionIdx = sectionIdx;
+        currentCustomNoteEditIdx = editNoteIdx;
+        
+        if (editNoteIdx !== null) {
+            document.getElementById('customNoteModalTitle').innerText = 'Редактировать заметку';
+            const note = customSectionNotes[sectionIdx][editNoteIdx];
+            document.getElementById('customNoteText').value = note.text;
+        } else {
+            document.getElementById('customNoteModalTitle').innerText = 'Новая заметка';
+            document.getElementById('customNoteText').value = '';
+        }
+        document.getElementById('customNoteModal').classList.add('active');
+    }
+    
+    function saveCustomNote() {
+        const text = document.getElementById('customNoteText').value.trim();
+        if (!text) { alert('Введите текст заметки'); return; }
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        
+        if (!customSectionNotes[currentCustomSectionIdx]) {
+            customSectionNotes[currentCustomSectionIdx] = [];
+        }
+        
+        if (currentCustomNoteEditIdx !== null) {
+            customSectionNotes[currentCustomSectionIdx][currentCustomNoteEditIdx] = { text: text, date: customSectionNotes[currentCustomSectionIdx][currentCustomNoteEditIdx].date };
+        } else {
+            customSectionNotes[currentCustomSectionIdx].push({ text: text, date: dateStr });
+        }
+        
+        saveCustomSectionNotes();
+        renderCustomNotesList(currentCustomSectionIdx);
+        document.getElementById('customNoteModal').classList.remove('active');
+        currentCustomNoteEditIdx = null;
+    }
+    
+    function deleteCustomNote(sectionIdx, noteIdx) {
+        if (confirm('Удалить заметку?')) {
+            customSectionNotes[sectionIdx].splice(noteIdx, 1);
+            saveCustomSectionNotes();
+            renderCustomNotesList(sectionIdx);
+        }
+    }
+    
+    function editCustomNote(sectionIdx, noteIdx) {
+        openCustomNoteModal(sectionIdx, noteIdx);
+    }
+    
+    window.openCustomNoteModal = openCustomNoteModal;
+    window.saveCustomNote = saveCustomNote;
+    window.deleteCustomNote = deleteCustomNote;
+    window.editCustomNote = editCustomNote;
+    
+    function addNewSection() {
+        let name = prompt('Название раздела:', 'Новая заметка');
+        if (!name) return;
+        name = name.trim() || 'Без названия';
+        const icons = ['fa-note-sticky', 'fa-bookmark', 'fa-pen', 'fa-folder', 'fa-tag', 'fa-star'];
+        customSections.push({ 
+            name: name, 
+            icon: icons[Math.floor(Math.random() * icons.length)],
+            notes: []
+        });
+        saveCustomSections();
+        renderCustomSections();
+    }
+    
+    // ========== TASK MODAL ==========
+    const taskModalHtml = `
+        <div id="taskModal" class="modal-overlay">
+            <div class="task-modal-content" style="background:white;border-radius:48px;width:520px;max-width:92%;overflow:hidden;">
+                <div class="task-modal-header" style="background:#1a1a1a;padding:28px 32px;color:white;">
+                    <h3 style="font-size:34px;font-weight:600;">Day <span id="modalDayNum"></span></h3>
+                </div>
+                <div class="task-modal-body" style="padding:28px 32px 32px;">
+                    <div class="task-section" style="margin-bottom:28px;">
+                        <div class="task-section-title" style="font-weight:600;margin-bottom:16px;">Routine</div>
+                        <div class="routine-checkboxes" style="display:flex;gap:32px;">
+                            <label><input type="checkbox" id="taskALL"> ALL</label>
+                            <label><input type="checkbox" id="taskMW"> MW</label>
+                            <label><input type="checkbox" id="taskNP"> NP</label>
+                        </div>
+                    </div>
+                    <div class="task-section" style="margin-bottom:28px;">
+                        <div class="task-section-title" style="font-weight:600;margin-bottom:16px;">Фокус</div>
+                        <div class="focus-buttons" style="display:flex;gap:14px;">
+                            <div class="focus-btn" data-focus="0" style="width:58px;padding:12px 0;text-align:center;background:#f0f0f0;border-radius:40px;cursor:pointer;">0</div>
+                            <div class="focus-btn" data-focus="1" style="width:58px;padding:12px 0;text-align:center;background:#f0f0f0;border-radius:40px;cursor:pointer;">1</div>
+                            <div class="focus-btn" data-focus="2" style="width:58px;padding:12px 0;text-align:center;background:#f0f0f0;border-radius:40px;cursor:pointer;">2</div>
+                        </div>
+                    </div>
+                    <div class="task-section" style="margin-bottom:28px;">
+                        <div class="task-section-title" style="font-weight:600;margin-bottom:16px;">Ключевые задачи</div>
+                        <input type="text" id="keyTaskInput" class="key-input" placeholder="Напиши задачу и нажми Enter..." style="width:100%;padding:14px 18px;border:1px solid #e5e5e5;border-radius:44px;margin-bottom:14px;">
+                        <ul id="keyTasksList" style="list-style:none;"></ul>
+                    </div>
+                    <div class="total-score" style="background:#f5f5f5;padding:20px;border-radius:32px;text-align:center;margin:24px 0 20px;">
+                        <span id="totalScoreValue" style="font-size:32px;font-weight:700;">0</span> / 10 баллов
+                    </div>
+                    <button class="close-modal-btn" id="closeModalBtn" style="width:100%;padding:16px;background:#1a1a1a;color:white;border:none;border-radius:48px;cursor:pointer;">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', taskModalHtml);
+    
+    document.getElementById('taskALL')?.addEventListener('change', () => saveCurrentData());
+    document.getElementById('taskMW')?.addEventListener('change', () => saveCurrentData());
+    document.getElementById('taskNP')?.addEventListener('change', () => saveCurrentData());
+    
+    document.querySelectorAll('#taskModal .focus-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#taskModal .focus-btn').forEach(b => {
+                b.classList.remove('active');
+                b.style.background = '#f0f0f0';
+                b.style.color = '#333';
+            });
+            btn.classList.add('active');
+            btn.style.background = '#1a1a1a';
+            btn.style.color = 'white';
+            saveCurrentData();
+        });
+    });
+    
+    document.getElementById('keyTaskInput')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && currentData) {
+            const text = e.target.value.trim();
+            if (text) {
+                if (!currentData.keyTasks) currentData.keyTasks = [];
+                currentData.keyTasks.push({ text: text, completed: false });
+                setDayData(currentYear, currentMonth, currentDay, currentData);
+                renderKeyTasks();
+                updateModalScore();
+                updateCalendar();
+                e.target.value = '';
+            }
+        }
+    });
+    
+    document.getElementById('closeModalBtn')?.addEventListener('click', () => {
+        document.getElementById('taskModal').classList.remove('active');
+    });
+    
+    document.getElementById('taskModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('taskModal')) {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+    });
+    
+    // ========== КОНТЕНТ ==========
+    const homeMainContent = `
+        <div class="education-card"><h2>Consistency</h2><p>is what makes work effective.</p></div>
+        <div class="habits-header-row">
+            <button class="add-habit-btn" onclick="addHabit()"><i class="fas fa-plus-circle"></i> Добавить привычку</button>
+        </div>
+        <div id="habitsGrid"></div>
+        <div id="allDonePanel" class="all-done-panel"></div>
+    `;
+    
+    const homeRightContent = `
+        <div class="calendar-card">
+            <div class="calendar-header">
+                <h4>Calendar</h4>
+                <div class="month-nav">
+                    <button id="prevMonthBtn">←</button>
+                    <span id="currentMonthDisplay" style="font-weight:600;">ИЮНЬ 2026</span>
+                    <button id="nextMonthBtn">→</button>
+                </div>
+            </div>
+            <div id="calendarContainer"></div>
+            <div class="days-left">
+                <i class="fas fa-calendar-alt"></i> До конца лета: <strong id="daysLeftValue">0</strong> дней <i class="fas fa-sun"></i>
+            </div>
+        </div>
+    `;
+    
+    const financeMainContent = `
+        <div class="finance-card">
+            <div class="finance-title">Общий бюджет</div>
+            <div class="balance-amount">$<span id="balanceAmount">0</span></div>
+            <div class="action-buttons">
+                <button class="action-circle" id="incomeBtn">+</button>
+                <button class="action-circle" id="expenseBtn">−</button>
+            </div>
+        </div>
+        <div class="transactions-card">
+            <h3>История транзакций</h3>
+            <div id="transactionsList"></div>
+        </div>
+    `;
+    
+    const financeRightContent = `
+        <div class="chart-card">
+            <h4>Динамика баланса (90 дней)</h4>
+            <div class="chart-container" id="chartContainer"></div>
+        </div>
+        <div class="allocation-card">
+            <h4>Распределение бюджета</h4>
+            <div id="allocationsList"></div>
+            <button class="add-allocation-btn" id="addAllocationBtn"><i class="fas fa-plus-circle"></i> Добавить статью</button>
+        </div>
+    `;
+    
+    const notesMainContent = `
+        <div class="education-card"><h2>Notes</h2><p>Your personal notes</p></div>
+        <div class="notes-card">
+            <div class="notes-header">
+                <h3>Все заметки</h3>
+                <button class="add-note-btn" onclick="openNoteModal()"><i class="fas fa-plus-circle"></i> Новая заметка</button>
+            </div>
+            <div id="notesList" class="notes-list"></div>
+        </div>
+    `;
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function setActiveSection(sectionId) {
+        activeCustomSection = null;
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.custom-nav-item').forEach(el => el.classList.remove('active-custom'));
+        
+        const navEl = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+        if (navEl) navEl.classList.add('active');
+        
+        const mainEl = document.getElementById('mainContent');
+        const rightEl = document.getElementById('rightPanel');
+        
+        if (sectionId === 'home') {
+            mainEl.innerHTML = homeMainContent;
+            rightEl.innerHTML = homeRightContent;
+            renderHabitsGrid();
+            renderAllDonePanel();
+            updateCalendar();
+            document.getElementById('prevMonthBtn')?.addEventListener('click', prevMonth);
+            document.getElementById('nextMonthBtn')?.addEventListener('click', nextMonth);
+        } else if (sectionId === 'finance') {
+            mainEl.innerHTML = financeMainContent;
+            rightEl.innerHTML = financeRightContent;
+            updateBalanceDisplay();
+            renderTransactions();
+            drawChart();
+            renderAllocations();
+            document.getElementById('incomeBtn')?.addEventListener('click', () => openTransactionModal('income'));
+            document.getElementById('expenseBtn')?.addEventListener('click', () => openTransactionModal('expense'));
+            document.getElementById('addAllocationBtn')?.addEventListener('click', openAllocationModal);
+            window.addEventListener('resize', () => drawChart());
+        } else if (sectionId === 'notes') {
+            mainEl.innerHTML = notesMainContent;
+            rightEl.innerHTML = '';
+            renderNotes();
+        }
+    }
+    
+    document.getElementById('newChatBtn')?.addEventListener('click', addNewSection);
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => setActiveSection(btn.dataset.section));
+    });
+    
+    document.getElementById('cancelFinanceModal')?.addEventListener('click', () => {
+        document.getElementById('financeModal').classList.remove('active');
+    });
+    document.getElementById('submitFinanceModal')?.addEventListener('click', addTransaction);
+    document.getElementById('financeModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('financeModal')) {
+            document.getElementById('financeModal').classList.remove('active');
+        }
+    });
+    
+    document.getElementById('cancelAllocationModal')?.addEventListener('click', () => {
+        document.getElementById('allocationModal').classList.remove('active');
+    });
+    document.getElementById('submitAllocationModal')?.addEventListener('click', addAllocationFromModal);
+    document.getElementById('allocationModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('allocationModal')) {
+            document.getElementById('allocationModal').classList.remove('active');
+        }
+    });
+    
+    document.getElementById('cancelNoteModal')?.addEventListener('click', () => {
+        document.getElementById('noteModal').classList.remove('active');
+    });
+    document.getElementById('submitNoteModal')?.addEventListener('click', saveNote);
+    document.getElementById('noteModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('noteModal')) {
+            document.getElementById('noteModal').classList.remove('active');
+        }
+    });
+    
+    document.getElementById('cancelCustomNoteModal')?.addEventListener('click', () => {
+        document.getElementById('customNoteModal').classList.remove('active');
+    });
+    document.getElementById('submitCustomNoteModal')?.addEventListener('click', saveCustomNote);
+    document.getElementById('customNoteModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('customNoteModal')) {
+            document.getElementById('customNoteModal').classList.remove('active');
+        }
+    });
+    
+    loadHabits();
+    loadDayData();
+    loadFinanceData();
+    loadNotes();
+    loadCustomSections();
+    loadCustomSectionNotes();
+    setActiveSection('home');
+</script>
+</body>
+</html>
