@@ -541,6 +541,12 @@
     </style>
 </head>
 <body>
+    <style>
+    /* Скрываем основной сайт до авторизации */
+    .app-wrapper {
+        display: none;
+    }
+</style>
 <div class="app-wrapper">
     <aside class="sidebar">
         <div class="prime-logo"><i class="fas fa-mask" aria-hidden="true"></i> prime</div>
@@ -1006,6 +1012,393 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
 
     loadHabits(); loadDayData(); loadFinanceData(); loadNotes(); loadGoals(); loadCustomSections(); initSummerData(); setActiveSection('home');
+</script>
+<!-- ========== МОДАЛЬНОЕ ОКНО ВХОДА/РЕГИСТРАЦИИ ========== -->
+<div id="authOverlay" class="auth-overlay">
+    <div class="auth-modal">
+        <div class="auth-header">
+            <div class="auth-logo"><i class="fas fa-mask"></i> prime</div>
+            <div class="auth-tagline">mindset · consistency · growth</div>
+        </div>
+        <div class="auth-tabs">
+            <button class="auth-tab active" data-auth-tab="login">Вход</button>
+            <button class="auth-tab" data-auth-tab="register">Регистрация</button>
+        </div>
+        <div id="authLoginForm" class="auth-form-container active">
+            <div class="input-group"><label>Email</label><input type="email" id="authLoginEmail" placeholder="your@email.com"></div>
+            <div class="input-group"><label>Пароль</label><input type="password" id="authLoginPassword" placeholder="••••••••"></div>
+            <button id="authDoLogin" class="auth-submit-btn">Войти</button>
+            <div class="auth-error" id="authLoginError"></div>
+        </div>
+        <div id="authRegisterForm" class="auth-form-container">
+            <div class="input-group"><label>Имя</label><input type="text" id="authRegName" placeholder="Alex"></div>
+            <div class="input-group"><label>Email</label><input type="email" id="authRegEmail" placeholder="your@email.com"></div>
+            <div class="input-group"><label>Пароль (мин 6 символов)</label><input type="password" id="authRegPassword" placeholder="••••••••"></div>
+            <button id="authDoRegister" class="auth-submit-btn">Зарегистрироваться</button>
+            <div class="auth-error" id="authRegisterError"></div>
+            <div class="auth-success" id="authRegisterSuccess"></div>
+        </div>
+    </div>
+</div>
+
+<button id="globalLogoutBtn" class="global-logout-btn" style="display: none;"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+
+<style>
+/* Стили для модалки регистрации (не конфликтуют с основными) */
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+.auth-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.auth-modal {
+    background: #ffffff;
+    border-radius: 48px;
+    width: 460px;
+    max-width: 92%;
+    padding: 40px 36px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    transform: scale(0.96);
+    transition: transform 0.2s ease;
+}
+.auth-overlay.active .auth-modal {
+    transform: scale(1);
+}
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+.auth-logo {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.auth-logo i { font-size: 36px; }
+.auth-tagline { font-size: 13px; color: #888; letter-spacing: 0.3px; }
+.auth-tabs {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 28px;
+    border-bottom: 2px solid #eeeeee;
+}
+.auth-tab {
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    padding: 0 0 12px 0;
+    cursor: pointer;
+    color: #aaa;
+    transition: 0.2s;
+}
+.auth-tab.active {
+    color: #1a1a1a;
+    border-bottom: 3px solid #1a1a1a;
+}
+.auth-form-container {
+    display: none;
+    flex-direction: column;
+    gap: 24px;
+}
+.auth-form-container.active {
+    display: flex;
+}
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.input-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #444;
+}
+.input-group input {
+    padding: 14px 18px;
+    border: 1px solid #e0e0e0;
+    border-radius: 44px;
+    font-size: 15px;
+    font-family: 'Outfit', sans-serif;
+    background: #fafafa;
+}
+.input-group input:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    background: white;
+}
+.auth-submit-btn {
+    background: #1a1a1a;
+    border: none;
+    padding: 14px;
+    border-radius: 48px;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+.auth-submit-btn:hover { background: #333; }
+.auth-error {
+    background: #fff2f0;
+    color: #c62828;
+    padding: 10px 16px;
+    border-radius: 32px;
+    font-size: 13px;
+    display: none;
+}
+.auth-success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px 16px;
+    border-radius: 32px;
+    font-size: 13px;
+    display: none;
+}
+.global-logout-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1a1a1a;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.global-logout-btn:hover { background: #333; }
+</style>
+
+<script>
+// ========== РЕГИСТРАЦИЯ И ВХОД (localStorage) ==========
+(function() {
+    const STORAGE_USERS = 'prime_local_users';
+    const STORAGE_SESSION = 'prime_local_session';
+    
+    function getUsers() {
+        const users = localStorage.getItem(STORAGE_USERS);
+        return users ? JSON.parse(users) : [];
+    }
+    
+    function saveUsers(users) {
+        localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+    }
+    
+    function getCurrentUser() {
+        const session = localStorage.getItem(STORAGE_SESSION);
+        return session ? JSON.parse(session) : null;
+    }
+    
+    function setCurrentUser(user) {
+        if (user) {
+            localStorage.setItem(STORAGE_SESSION, JSON.stringify(user));
+        } else {
+            localStorage.removeItem(STORAGE_SESSION);
+        }
+    }
+    
+    function showAuthError(formId, message) {
+        const errorDiv = formId === 'login' ? document.getElementById('authLoginError') : document.getElementById('authRegisterError');
+        if (errorDiv) {
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+            errorDiv.style.display = 'flex';
+            setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
+        }
+    }
+    
+    function showAuthSuccess(message) {
+        const successDiv = document.getElementById('authRegisterSuccess');
+        if (successDiv) {
+            successDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + message;
+            successDiv.style.display = 'flex';
+            setTimeout(() => { successDiv.style.display = 'none'; }, 3000);
+        }
+    }
+    
+    function loginUser(email, password) {
+        if (!email || !password) {
+            showAuthError('login', 'Заполните все поля');
+            return false;
+        }
+        const users = getUsers();
+        const user = users.find(u => u.email === email && u.password === password);
+        if (user) {
+            setCurrentUser({ id: user.id, name: user.name, email: user.email });
+            return true;
+        } else {
+            showAuthError('login', 'Неверный email или пароль');
+            return false;
+        }
+    }
+    
+    function registerUser(name, email, password) {
+        if (!name || !email || !password) {
+            showAuthError('register', 'Заполните все поля');
+            return false;
+        }
+        if (password.length < 6) {
+            showAuthError('register', 'Пароль минимум 6 символов');
+            return false;
+        }
+        const users = getUsers();
+        if (users.find(u => u.email === email)) {
+            showAuthError('register', 'Этот email уже зарегистрирован');
+            return false;
+        }
+        const newUser = { id: Date.now(), name: name.trim(), email: email, password: password };
+        users.push(newUser);
+        saveUsers(users);
+        showAuthSuccess('Регистрация успешна! Теперь войдите.');
+        return true;
+    }
+    
+    function logout() {
+        setCurrentUser(null);
+        location.reload();
+    }
+    
+    function updateUIForAuth() {
+        const user = getCurrentUser();
+        const authOverlay = document.getElementById('authOverlay');
+        const logoutBtn = document.getElementById('globalLogoutBtn');
+        const appWrapper = document.querySelector('.app-wrapper');
+        
+        if (user) {
+            if (authOverlay) authOverlay.classList.remove('active');
+            if (logoutBtn) logoutBtn.style.display = 'flex';
+            if (appWrapper) appWrapper.style.display = 'flex';
+        } else {
+            if (authOverlay) authOverlay.classList.add('active');
+            if (logoutBtn) logoutBtn.style.display = 'none';
+            if (appWrapper) appWrapper.style.display = 'none';
+        }
+    }
+    
+    // Инициализация событий
+    function initAuthUI() {
+        const overlay = document.getElementById('authOverlay');
+        const loginBtn = document.getElementById('authDoLogin');
+        const registerBtn = document.getElementById('authDoRegister');
+        const logoutBtn = document.getElementById('globalLogoutBtn');
+        const tabBtns = document.querySelectorAll('.auth-tab');
+        const loginForm = document.getElementById('authLoginForm');
+        const registerForm = document.getElementById('authRegisterForm');
+        const loginEmail = document.getElementById('authLoginEmail');
+        const loginPassword = document.getElementById('authLoginPassword');
+        const regName = document.getElementById('authRegName');
+        const regEmail = document.getElementById('authRegEmail');
+        const regPassword = document.getElementById('authRegPassword');
+        
+        if (tabBtns.length) {
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const tab = btn.dataset.authTab;
+                    if (tab === 'login') {
+                        loginForm.classList.add('active');
+                        registerForm.classList.remove('active');
+                    } else {
+                        registerForm.classList.add('active');
+                        loginForm.classList.remove('active');
+                    }
+                    const errors = document.querySelectorAll('.auth-error, .auth-success');
+                    errors.forEach(e => e.style.display = 'none');
+                });
+            });
+        }
+        
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                const email = loginEmail?.value.trim() || '';
+                const password = loginPassword?.value || '';
+                if (loginUser(email, password)) {
+                    updateUIForAuth();
+                }
+            });
+        }
+        
+        if (registerBtn) {
+            registerBtn.addEventListener('click', () => {
+                const name = regName?.value.trim() || '';
+                const email = regEmail?.value.trim() || '';
+                const password = regPassword?.value || '';
+                if (registerUser(name, email, password)) {
+                    // Переключаем на вкладку входа после регистрации
+                    const loginTab = document.querySelector('.auth-tab[data-auth-tab="login"]');
+                    if (loginTab) loginTab.click();
+                    if (loginEmail) loginEmail.value = email;
+                    if (loginPassword) loginPassword.value = '';
+                }
+            });
+        }
+        
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', logout);
+        }
+        
+        // Закрытие по клику на оверлей
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    // Не закрываем, если нет пользователя
+                }
+            });
+        }
+        
+        // Enter для отправки форм
+        const handleEnter = (e, callback) => { if (e.key === 'Enter') callback(); };
+        if (loginEmail) loginEmail.addEventListener('keypress', (e) => handleEnter(e, () => loginBtn?.click()));
+        if (loginPassword) loginPassword.addEventListener('keypress', (e) => handleEnter(e, () => loginBtn?.click()));
+        if (regName) regName.addEventListener('keypress', (e) => handleEnter(e, () => registerBtn?.click()));
+        if (regEmail) regEmail.addEventListener('keypress', (e) => handleEnter(e, () => registerBtn?.click()));
+        if (regPassword) regPassword.addEventListener('keypress', (e) => handleEnter(e, () => registerBtn?.click()));
+        
+        // demo пользователь
+        const users = getUsers();
+        if (!users.find(u => u.email === 'demo@prime.app')) {
+            users.push({ id: 999, name: 'Demo', email: 'demo@prime.app', password: 'demo123' });
+            saveUsers(users);
+        }
+    }
+    
+    // Запускаем после загрузки DOM
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initAuthUI();
+            updateUIForAuth();
+        });
+    } else {
+        initAuthUI();
+        updateUIForAuth();
+    }
+})();
 </script>
 </body>
 </html>
