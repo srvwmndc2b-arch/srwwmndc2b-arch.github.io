@@ -1,71 +1,129 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>prime — dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #f5f5f5;
-            font-family: 'Outfit', 'Inter', sans-serif;
-            color: #1a1a1a;
-            padding: 30px 36px;
+        /* ========== CSS ПЕРЕМЕННЫЕ ========== */
+        :root {
+            /* Цвета */
+            --bg-page: #f5f5f5;
+            --bg-white: #ffffff;
+            --bg-dark: #1a1a1a;
+            --bg-gray-light: #f9f9f9;
+            --bg-gray: #f0f0f0;
+            --border-light: #ececec;
+            --border: #e0e0e0;
+            --text-primary: #111111;
+            --text-secondary: #333333;
+            --text-muted: #666666;
+            --text-light: #888888;
+            --danger: #c62828;
+            --danger-bg: #fff2f0;
+            --success: #2e7d32;
+            /* Радиусы */
+            --radius-xs: 12px;
+            --radius-sm: 20px;
+            --radius-md: 28px;
+            --radius-lg: 32px;
+            --radius-xl: 40px;
+            --radius-2xl: 48px;
+            /* Отступы */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-2xl: 24px;
+            --spacing-3xl: 28px;
+            --spacing-4xl: 32px;
+            /* Тени */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.03);
+            --shadow-md: 0 2px 12px rgba(0,0,0,0.04);
+            --shadow-lg: 0 4px 16px rgba(0,0,0,0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+            /* Шрифты */
+            --font-family: 'Outfit', 'Inter', sans-serif;
+            /* Анимации */
+            --transition: all 0.25s ease;
+            --transition-fast: all 0.2s ease;
         }
-        .app-wrapper { display: flex; gap: 24px; max-width: 1400px; margin: 0 auto; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-page);
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            padding: var(--spacing-4xl) 36px;
+        }
+
+        /* ========== КОНТЕЙНЕРЫ ========== */
+        .app-wrapper {
+            display: flex;
+            gap: var(--spacing-2xl);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ========== САЙДБАР ========== */
         .sidebar {
             width: 260px;
-            background: #ffffff;
-            border-radius: 32px;
-            padding: 32px 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            flex-shrink: 0;
+            background: var(--bg-white);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4xl) var(--spacing-xl);
+            box-shadow: var(--shadow-md);
             display: flex;
             flex-direction: column;
             height: fit-content;
             max-height: 95vh;
             overflow-y: auto;
-            flex-shrink: 0;
         }
+
         .prime-logo {
             font-size: 26px;
             font-weight: 700;
-            color: #111;
+            color: var(--text-primary);
             margin-bottom: 40px;
-            padding-left: 12px;
+            padding-left: var(--spacing-md);
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .prime-logo i { font-size: 28px; transition: transform 0.25s; }
+        .prime-logo i { font-size: 28px; transition: transform 0.25s; cursor: default; }
         .prime-logo i:hover { transform: scale(1.08); }
+
+        /* ========== НАВИГАЦИЯ ========== */
+        nav { display: flex; flex-direction: column; gap: var(--spacing-xs); }
         .nav-item {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 12px 16px;
-            margin: 4px 0;
-            border-radius: 20px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-sm);
             font-size: 15px;
             font-weight: 500;
             color: #4a4a4a;
-            transition: all 0.25s;
+            transition: var(--transition);
             cursor: pointer;
         }
         .nav-item i { width: 24px; font-size: 1.2rem; color: #5a5a5a; transition: transform 0.2s; }
         .nav-item:hover { background: #e8e8e8; transform: translateX(6px); }
-        .nav-item:hover i { transform: scale(1.15); color: #111; }
-        .nav-item.active { background: #e0e0e0; color: #111; }
-        .nav-item.active i { color: #111; }
+        .nav-item:hover i { transform: scale(1.15); color: var(--text-primary); }
+        .nav-item.active { background: #e0e0e0; color: var(--text-primary); }
+        .nav-item.active i { color: var(--text-primary); }
+
         .new-chat-btn {
-            margin-top: 28px;
-            margin-bottom: 16px;
-            background: #1a1a1a;
+            margin-top: var(--spacing-3xl);
+            margin-bottom: var(--spacing-lg);
+            background: var(--bg-dark);
             border: none;
-            padding: 12px 18px;
+            padding: var(--spacing-md) 18px;
             border-radius: 40px;
             font-weight: 600;
             font-size: 14px;
@@ -75,31 +133,33 @@
             justify-content: center;
             gap: 10px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition-fast);
             width: 100%;
         }
         .new-chat-btn:hover { background: #333; transform: scale(1.02); }
-        .dynamic-sections { margin-top: 12px; }
-        .section-divider { height: 1px; background: #ccc; margin: 14px 0 16px; }
+
+        /* ========== КАСТОМНЫЕ РАЗДЕЛЫ ========== */
+        .dynamic-sections { margin-top: var(--spacing-md); }
+        .section-divider { height: 1px; background: #ccc; margin: 14px 0 var(--spacing-lg); }
         .custom-nav-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 12px;
+            padding: 10px var(--spacing-md);
             margin: 6px 0;
-            border-radius: 20px;
+            border-radius: var(--radius-sm);
             background: #f7f7f7;
-            transition: all 0.2s;
+            transition: var(--transition-fast);
             cursor: pointer;
         }
         .custom-nav-item:hover { background: #e8e8e8; transform: translateX(4px); }
-        .custom-nav-item.active-custom { background: #e0e0e0; color: #111; }
-        .custom-nav-item .left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; flex: 1; }
+        .custom-nav-item.active-custom { background: #e0e0e0; color: var(--text-primary); }
+        .custom-nav-item .left { display: flex; align-items: center; gap: var(--spacing-md); font-size: 14px; font-weight: 500; flex: 1; }
         .custom-nav-item .left i { font-size: 14px; }
         .custom-nav-item .left .section-name {
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-xs);
             transition: background 0.2s;
         }
         .custom-nav-item .left .section-name:hover { background: #e0e0e0; }
@@ -109,23 +169,38 @@
             font-size: 14px;
             color: #888;
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 20px;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
         }
-        .delete-custom:hover { color: #d33; background: #f0f0f0; }
-        .main-content { flex: 1; display: flex; flex-direction: column; gap: 24px; }
-        .right-panel { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; gap: 24px; }
+        .delete-custom:hover { color: var(--danger); background: #f0f0f0; }
+
+        /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
+        .main-content { flex: 1; display: flex; flex-direction: column; gap: var(--spacing-2xl); }
+        .right-panel { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; gap: var(--spacing-2xl); }
+
+        /* ========== УНИВЕРСАЛЬНЫЕ КАРТОЧКИ ========== */
+        .card {
+            background: var(--bg-white);
+            border-radius: var(--radius-md);
+            padding: 22px 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+        .card:hover { transform: translateY(-4px); }
+
         .education-card {
-            background: #1a1a1a;
-            border-radius: 32px;
-            padding: 32px 28px;
+            background: var(--bg-dark);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4xl) var(--spacing-3xl);
             color: white;
         }
-        .education-card h2 { font-size: 28px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .education-card h2 { font-size: 28px; font-weight: 600; margin-bottom: var(--spacing-sm); letter-spacing: -0.5px; }
         .education-card p { font-size: 15px; opacity: 0.7; }
-        .habits-header-row { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+
+        /* Привычки */
+        .habits-header-row { display: flex; justify-content: flex-end; margin-bottom: var(--spacing-xl); }
         .add-habit-btn {
-            background: #fff;
+            background: var(--bg-white);
             border: 2px dashed #ccc;
             border-radius: 40px;
             padding: 10px 24px;
@@ -137,47 +212,24 @@
             color: #888;
             cursor: pointer;
         }
-        .add-habit-btn:hover { border-color: #1a1a1a; color: #1a1a1a; background: #fafafa; }
-        .habits-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .habit-card {
-            background: #fff;
-            border-radius: 28px;
-            padding: 22px 24px;
-            transition: transform 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        }
+        .add-habit-btn:hover { border-color: var(--bg-dark); color: var(--bg-dark); background: #fafafa; }
+
+        .habits-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-xl); }
+        .habit-card { background: var(--bg-white); border-radius: var(--radius-md); padding: 22px 24px; transition: transform 0.2s; box-shadow: var(--shadow-sm); }
         .habit-card:hover { transform: translateY(-4px); }
-        .habit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .habit-name {
-            font-size: 20px;
-            font-weight: 600;
-            color: #111;
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-family: inherit;
-            padding: 4px 8px;
-            border-radius: 12px;
-        }
+        .habit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .habit-name { font-size: 20px; font-weight: 600; cursor: pointer; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-xs); background: none; border: none; font-family: inherit; }
         .habit-name:hover { background: #f0f0f0; }
-        .habit-actions { display: flex; gap: 8px; }
-        .habit-btn {
-            background: none;
-            border: none;
-            font-size: 14px;
-            cursor: pointer;
-            color: #888;
-            padding: 6px;
-            border-radius: 30px;
-        }
+        .habit-actions { display: flex; gap: var(--spacing-sm); }
+        .habit-btn { background: none; border: none; font-size: 14px; cursor: pointer; color: #888; padding: 6px; border-radius: 30px; }
         .habit-btn:hover { background: #f0f0f0; color: #333; }
-        .habit-btn.delete:hover { color: #d33; }
-        .streak { text-align: center; margin: 16px 0; }
-        .streak-number { font-size: 36px; font-weight: 700; color: #1a1a1a; }
-        .streak-label { font-size: 12px; color: #888; margin-top: 4px; }
-        .progress-bar-bg { background: #e0e0e0; height: 8px; border-radius: 10px; margin: 16px 0 12px; overflow: hidden; }
-        .progress-fill { background: #1a1a1a; height: 8px; border-radius: 10px; width: 0%; transition: width 0.3s; }
-        .habit-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+        .habit-btn.delete:hover { color: var(--danger); }
+        .streak { text-align: center; margin: var(--spacing-lg) 0; }
+        .streak-number { font-size: 36px; font-weight: 700; color: var(--bg-dark); }
+        .streak-label { font-size: 12px; color: #888; margin-top: var(--spacing-xs); }
+        .progress-bar-bg { background: #e0e0e0; height: 8px; border-radius: 10px; margin: var(--spacing-lg) 0 var(--spacing-md); overflow: hidden; }
+        .progress-fill { background: var(--bg-dark); height: 8px; border-radius: 10px; width: 0%; transition: width 0.3s; }
+        .habit-footer { display: flex; justify-content: space-between; align-items: center; margin-top: var(--spacing-md); }
         .days-text { font-size: 12px; color: #888; }
         .check-btn {
             background: #f0f0f0;
@@ -191,32 +243,37 @@
             align-items: center;
             justify-content: center;
         }
-        .check-btn.completed { background: #1a1a1a; color: white; }
+        .check-btn.completed { background: var(--bg-dark); color: white; }
         .check-btn:hover { transform: scale(1.05); background: #e0e0e0; }
+
         .all-done-panel {
-            background: #fff;
-            border-radius: 28px;
-            padding: 24px 28px;
-            margin-top: 8px;
+            background: var(--bg-white);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-2xl) var(--spacing-3xl);
+            margin-top: var(--spacing-sm);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .all-done-left { display: flex; flex-direction: column; gap: 4px; }
+        .all-done-left { display: flex; flex-direction: column; gap: var(--spacing-xs); }
         .all-done-label { font-size: 16px; font-weight: 500; color: #555; }
-        .all-done-number { font-size: 48px; font-weight: 700; color: #1a1a1a; line-height: 1; }
+        .all-done-number { font-size: 48px; font-weight: 700; color: var(--bg-dark); line-height: 1; }
         .all-done-sub { font-size: 13px; color: #888; }
-        .all-done-icon { font-size: 48px; color: #1a1a1a; opacity: 0.3; }
-        .calendar-card { background: #fff; border-radius: 32px; padding: 24px; }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .all-done-icon { font-size: 48px; color: var(--bg-dark); opacity: 0.3; }
+
+        /* Календарь */
+        .calendar-card { background: var(--bg-white); border-radius: var(--radius-lg); padding: var(--spacing-2xl); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl); }
         .calendar-header h4 { font-size: 20px; font-weight: 600; }
-        .month-nav { display: flex; gap: 16px; }
-        .month-nav button { background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px 12px; border-radius: 30px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; margin: 16px 0; }
+        .month-nav { display: flex; gap: var(--spacing-lg); }
+        .month-nav button { background: none; border: none; font-size: 16px; cursor: pointer; padding: var(--spacing-xs) var(--spacing-md); border-radius: 30px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; margin: var(--spacing-lg) 0; }
         .weekday { font-size: 12px; font-weight: 600; color: #555; padding: 6px 0; }
         .day-button {
-            width: 44px;
-            height: 44px;
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            max-width: 44px;
+            margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -229,17 +286,19 @@
             font-family: inherit;
             position: relative;
         }
-        .day-button.today { background: #1a1a1a; color: white; }
+        .day-button.today { background: var(--bg-dark); color: white; }
         .day-button.other-month { color: #bbb; }
-        .day-button svg { position: absolute; top: 0; left: 0; width: 44px; height: 44px; pointer-events: none; transform: rotate(-90deg); }
-        .day-button svg circle { fill: none; stroke: #1a1a1a; stroke-width: 3; stroke-dasharray: 132; transition: stroke-dashoffset 0.3s; }
-        .stats-row { margin-top: 12px; padding-top: 8px; border-top: 1px solid #ececec; }
+        .day-button svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; transform: rotate(-90deg); }
+        .day-button svg circle { fill: none; stroke: var(--bg-dark); stroke-width: 3; stroke-dasharray: 132; transition: stroke-dashoffset 0.3s; }
+        .stats-row { margin-top: var(--spacing-md); padding-top: var(--spacing-sm); border-top: 1px solid var(--border-light); }
         .stat-line { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; }
-        .days-left { text-align: center; font-size: 14px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #ececec; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .finance-card { background: #1a1a1a; border-radius: 32px; padding: 28px; color: white; }
-        .finance-title { font-size: 14px; opacity: 0.6; margin-bottom: 20px; }
-        .balance-amount { font-size: 48px; font-weight: 700; letter-spacing: -1px; margin-bottom: 24px; }
-        .action-buttons { display: flex; gap: 20px; }
+        .days-left { text-align: center; font-size: 14px; margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border-light); display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); }
+
+        /* Финансы */
+        .finance-card { background: var(--bg-dark); border-radius: var(--radius-lg); padding: var(--spacing-3xl); color: white; }
+        .finance-title { font-size: 14px; opacity: 0.6; margin-bottom: var(--spacing-xl); }
+        .balance-amount { font-size: 48px; font-weight: 700; letter-spacing: -1px; margin-bottom: var(--spacing-2xl); }
+        .action-buttons { display: flex; gap: var(--spacing-xl); }
         .action-circle {
             width: 56px;
             height: 56px;
@@ -255,46 +314,44 @@
             justify-content: center;
         }
         .action-circle:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-        .transactions-card { background: #fff; border-radius: 32px; padding: 24px; }
-        .transactions-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+
+        .transactions-card { background: var(--bg-white); border-radius: var(--radius-lg); padding: var(--spacing-2xl); }
+        .transactions-card h3 { font-size: 18px; font-weight: 600; margin-bottom: var(--spacing-xl); }
         .empty-transactions { text-align: center; padding: 40px 20px; color: #aaa; font-size: 14px; }
         .transaction-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
         .transaction-left { display: flex; align-items: center; gap: 14px; }
         .transaction-icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #f0f0f0; color: #333; }
         .transaction-info .name { font-weight: 600; font-size: 15px; }
         .transaction-info .date { font-size: 12px; color: #888; margin-top: 2px; }
-        .transaction-amount.income { color: #2e7d32; }
-        .transaction-amount.expense { color: #c62828; }
+        .transaction-amount.income { color: var(--success); }
+        .transaction-amount.expense { color: var(--danger); }
+
         .clear-history-btn {
             background: none;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--border);
             padding: 10px 16px;
             border-radius: 40px;
             font-size: 13px;
             font-weight: 500;
-            color: #c62828;
+            color: var(--danger);
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: var(--spacing-xl);
             width: 100%;
-            transition: all 0.2s;
         }
-        .clear-history-btn:hover {
-            background: #fff2f0;
-            border-color: #c62828;
-        }
-        .chart-card, .allocation-card { background: #fff; border-radius: 32px; padding: 24px; }
-        .chart-card h4, .allocation-card h4 { font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+        .clear-history-btn:hover { background: var(--danger-bg); border-color: var(--danger); }
+
+        .chart-card, .allocation-card { background: var(--bg-white); border-radius: var(--radius-lg); padding: var(--spacing-2xl); }
+        .chart-card h4, .allocation-card h4 { font-size: 18px; font-weight: 600; margin-bottom: var(--spacing-xl); }
         .chart-container { height: 180px; width: 100%; }
         .allocation-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .allocation-name { font-weight: 500; cursor: pointer; padding: 4px 8px; border-radius: 12px; }
+        .allocation-name { font-weight: 500; cursor: pointer; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-xs); }
         .allocation-name:hover { background: #f0f0f0; }
         .allocation-amount { font-weight: 600; }
-        .allocation-actions { display: flex; gap: 8px; }
-        .allocation-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 12px; padding: 4px; }
-        .allocation-btn:hover { color: #333; }
+        .allocation-actions { display: flex; gap: var(--spacing-sm); }
+        .allocation-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 12px; padding: var(--spacing-xs); }
         .add-allocation-btn {
-            margin-top: 16px;
-            padding: 12px;
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-md);
             width: 100%;
             background: #f5f5f5;
             border: 1px dashed #ccc;
@@ -306,14 +363,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: var(--spacing-sm);
         }
-        .add-allocation-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
-        .notes-card { background: #fff; border-radius: 32px; padding: 24px; }
-        .notes-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .notes-header h3 { font-size: 20px; font-weight: 600; }
-        .add-note-btn {
-            background: #1a1a1a;
+        .add-allocation-btn:hover { border-color: var(--bg-dark); color: var(--bg-dark); }
+
+        /* Заметки и цели */
+        .notes-card, .goals-card { background: var(--bg-white); border-radius: var(--radius-lg); padding: var(--spacing-2xl); }
+        .notes-header, .goals-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-2xl); }
+        .notes-header h3, .goals-header h3 { font-size: 20px; font-weight: 600; }
+        .add-note-btn, .add-goal-btn {
+            background: var(--bg-dark);
             border: none;
             padding: 10px 20px;
             border-radius: 40px;
@@ -323,82 +382,78 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-sm);
         }
-        .add-note-btn:hover { background: #333; }
-        .notes-list { display: flex; flex-direction: column; gap: 12px; }
-        .note-item { background: #f9f9f9; border-radius: 20px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .note-item:hover { background: #f0f0f0; }
+        .add-note-btn:hover, .add-goal-btn:hover { background: #333; }
+        .notes-list, .goals-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
+        .note-item, .goal-item { background: #f9f9f9; border-radius: var(--radius-sm); padding: 16px 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .note-item:hover, .goal-item:hover { background: #f0f0f0; }
         .note-content { flex: 1; cursor: pointer; }
         .note-text { font-size: 15px; line-height: 1.4; color: #333; }
-        .note-date { font-size: 11px; color: #aaa; margin-top: 8px; }
-        .note-actions { display: flex; gap: 8px; }
-        .note-btn { background: none; border: none; color: #999; cursor: pointer; padding: 6px; border-radius: 20px; }
+        .note-date { font-size: 11px; color: #aaa; margin-top: var(--spacing-sm); }
+        .note-actions { display: flex; gap: var(--spacing-sm); }
+        .note-btn { background: none; border: none; color: #999; cursor: pointer; padding: 6px; border-radius: var(--radius-sm); }
         .note-btn:hover { background: #e0e0e0; color: #333; }
-        .note-btn.delete:hover { color: #d33; }
-        .empty-notes { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
-        .goals-card { background: #fff; border-radius: 32px; padding: 24px; }
-        .goals-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .goals-header h3 { font-size: 20px; font-weight: 600; }
-        .add-goal-btn {
-            background: #1a1a1a;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            color: white;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .add-goal-btn:hover { background: #333; }
-        .goals-list { display: flex; flex-direction: column; gap: 12px; }
-        .goal-item {
-            background: #f9f9f9;
-            border-radius: 20px;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        .note-btn.delete:hover { color: var(--danger); }
+        .empty-notes, .empty-goals { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
         .goal-left { display: flex; align-items: center; gap: 14px; flex: 1; cursor: pointer; }
-        .goal-check {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid #aaa;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .goal-check.completed { background: #1a1a1a; border-color: #1a1a1a; color: white; }
+        .goal-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #aaa; background: white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .goal-check.completed { background: var(--bg-dark); border-color: var(--bg-dark); color: white; }
         .goal-text { font-size: 15px; color: #333; flex: 1; }
         .goal-text.completed { text-decoration: line-through; color: #999; }
-        .goal-date { font-size: 11px; color: #aaa; margin-left: 12px; }
-        .goal-delete {
-            background: none;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 20px;
-        }
-        .goal-delete:hover { color: #d33; background: #f0f0f0; }
-        .empty-goals { text-align: center; padding: 60px 20px; color: #aaa; font-size: 14px; }
+        .goal-date { font-size: 11px; color: #aaa; margin-left: var(--spacing-md); }
+        .goal-delete { background: none; border: none; color: #999; cursor: pointer; padding: 6px; border-radius: var(--radius-sm); }
 
-        /* ========== КАРТОЧКА ДНЯ ========== */
+        /* SUMMER FP 2026 */
+        .weeks-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-xl); }
+        .week-card { background: var(--bg-white); border-radius: var(--radius-md); padding: 22px 24px; transition: transform 0.2s; box-shadow: var(--shadow-sm); cursor: pointer; }
+        .week-card:hover { transform: translateY(-4px); }
+        .week-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); }
+        .week-number { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .week-avg-score { background: #f0f0f0; padding: 4px 12px; border-radius: 30px; font-size: 13px; font-weight: 600; color: #222; }
+        .week-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--spacing-lg); padding-bottom: var(--spacing-md); border-bottom: 1px solid var(--border-light); }
+        .week-title { font-size: 15px; font-weight: 500; color: #333; flex: 1; }
+        .edit-title-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 13px; padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm); }
+        .week-stats { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border-light); }
+        .week-modal { background: var(--bg-white); border-radius: var(--radius-lg); width: 90%; max-width: 1100px; max-height: 85vh; overflow-y: auto; padding: var(--spacing-3xl) var(--spacing-4xl); }
+        .week-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-2xl); padding-bottom: var(--spacing-lg); border-bottom: 1px solid var(--border-light); }
+        .week-modal-header h2 { font-size: 24px; font-weight: 600; }
+        .close-modal { background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa; }
+        .close-modal:hover { color: #333; }
+        .weekly-goals-section { background: #f9f9f9; border-radius: var(--radius-md); padding: var(--spacing-xl) var(--spacing-2xl); margin-bottom: var(--spacing-3xl); }
+        .weekly-goals-title { font-weight: 600; font-size: 17px; margin-bottom: var(--spacing-lg); color: #222; }
+        .weekly-goals-list { list-style: none; margin-bottom: var(--spacing-lg); }
+        .weekly-goals-list li { display: flex; align-items: center; gap: var(--spacing-md); padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+        .weekly-goals-list li input { width: 20px; height: 20px; appearance: none; border-radius: 50%; border: 2px solid #aaa; background: white; cursor: pointer; }
+        .weekly-goals-list li input:checked { background: var(--bg-dark); border-color: var(--bg-dark); box-shadow: inset 0 0 0 3px white; }
+        .weekly-goals-list li span { flex: 1; font-size: 14px; }
+        .weekly-goals-list li button { background: none; border: none; color: #bbb; cursor: pointer; }
+        .add-goal-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-family: inherit; font-size: 14px; background: #fafafa; }
+        .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--spacing-md); margin: var(--spacing-2xl) 0; }
+        .day-card-summer { background: #fafafa; border-radius: var(--radius-sm); padding: 14px 12px; cursor: pointer; transition: var(--transition-fast); border: 1px solid var(--border-light); text-align: center; }
+        .day-card-summer:hover { background: #f0f0f0; transform: translateY(-2px); }
+        .day-name { font-weight: 600; font-size: 13px; color: #555; margin-bottom: var(--spacing-sm); }
+        .day-score { font-size: 20px; font-weight: 700; color: var(--bg-dark); }
+        .day-status { font-size: 10px; color: #888; margin-top: var(--spacing-xs); }
+        .day-modal-summer { background: white; border-radius: var(--radius-lg); width: 500px; max-width: 92%; padding: var(--spacing-3xl) var(--spacing-4xl); }
+        .day-modal-summer h3 { font-size: 24px; font-weight: 600; margin-bottom: var(--spacing-2xl); }
+        .rehab-field { margin-bottom: var(--spacing-lg); }
+        .rehab-field label { display: block; font-weight: 500; font-size: 14px; margin-bottom: 6px; color: #444; }
+        .rehab-field input, .rehab-field textarea { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-family: inherit; font-size: 14px; background: #fafafa; }
+        .day-goals-section { margin-top: var(--spacing-2xl); padding-top: var(--spacing-lg); border-top: 1px solid var(--border-light); }
+        .day-goals-title { font-weight: 600; font-size: 15px; margin-bottom: var(--spacing-md); }
+        .day-goals-list { list-style: none; }
+        .day-goals-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+        .save-day-btn { width: 100%; padding: 14px; background: var(--bg-dark); color: white; border: none; border-radius: 48px; font-weight: 600; margin-top: var(--spacing-2xl); cursor: pointer; }
+
+        /* Модальные окна */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(6px);
             display: flex;
             align-items: center;
@@ -406,293 +461,116 @@
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-        .day-card {
-            background: #ffffff;
-            border-radius: 40px;
-            width: 500px;
-            max-width: 92%;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transform: scale(0.96);
-            transition: transform 0.2s ease;
-            font-family: 'Outfit', 'Inter', sans-serif;
-        }
+        .day-card { background: var(--bg-white); border-radius: var(--radius-xl); width: 500px; max-width: 92%; overflow: hidden; box-shadow: var(--shadow-xl); transform: scale(0.96); transition: transform 0.2s ease; }
         .modal-overlay.active .day-card { transform: scale(1); }
-        .day-card-header { background: #1a1a1a; padding: 28px 32px; }
+        .day-card-header { background: var(--bg-dark); padding: var(--spacing-3xl) var(--spacing-4xl); }
         .day-card-title { font-size: 34px; font-weight: 600; letter-spacing: -0.5px; color: white; }
-        .day-card-body { padding: 28px 32px 32px; }
-        .day-card-section { margin-bottom: 28px; }
+        .day-card-body { padding: var(--spacing-3xl) var(--spacing-4xl) var(--spacing-4xl); }
+        .day-card-section { margin-bottom: var(--spacing-3xl); }
         .day-card-label { font-size: 18px; font-weight: 600; margin-bottom: 14px; color: #222; }
-        .day-card-check-group { display: flex; gap: 32px; }
+        .day-card-check-group { display: flex; gap: var(--spacing-4xl); }
         .day-card-check { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; cursor: pointer; }
-        .day-card-check input { width: 20px; height: 20px; appearance: none; border-radius: 50%; border: 2px solid #aaa; background: white; cursor: pointer; transition: all 0.2s; }
-        .day-card-check input:checked { background: #1a1a1a; border-color: #1a1a1a; box-shadow: inset 0 0 0 3px white; }
-        .day-card-focus { display: flex; gap: 16px; }
-        .focus-option { width: 56px; padding: 10px 0; text-align: center; background: #f0f0f0; border: none; border-radius: 40px; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-        .focus-option.active { background: #1a1a1a; color: white; }
-        .day-card-input { width: 100%; padding: 14px 18px; border: 1px solid #e5e5e5; border-radius: 44px; font-size: 15px; font-family: inherit; margin-bottom: 14px; background: #fafafa; transition: 0.2s; }
-        .day-card-input:focus { outline: none; border-color: #1a1a1a; background: white; }
+        .day-card-check input { width: 20px; height: 20px; appearance: none; border-radius: 50%; border: 2px solid #aaa; background: white; cursor: pointer; transition: var(--transition-fast); }
+        .day-card-check input:checked { background: var(--bg-dark); border-color: var(--bg-dark); box-shadow: inset 0 0 0 3px white; }
+        .day-card-focus { display: flex; gap: var(--spacing-lg); }
+        .focus-option { width: 56px; padding: 10px 0; text-align: center; background: #f0f0f0; border: none; border-radius: 40px; font-size: 18px; font-weight: 600; cursor: pointer; }
+        .focus-option.active { background: var(--bg-dark); color: white; }
+        .day-card-input { width: 100%; padding: 14px 18px; border: 1px solid #e5e5e5; border-radius: 44px; font-size: 15px; margin-bottom: 14px; background: #fafafa; }
         .day-card-task-list { list-style: none; max-height: 200px; overflow-y: auto; }
-        .day-card-task-list li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .day-card-task-list li input { width: 20px; height: 20px; appearance: none; border-radius: 50%; border: 2px solid #aaa; background: white; cursor: pointer; transition: all 0.2s; }
-        .day-card-task-list li input:checked { background: #1a1a1a; border-color: #1a1a1a; box-shadow: inset 0 0 0 3px white; }
+        .day-card-task-list li { display: flex; align-items: center; gap: var(--spacing-md); padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .day-card-task-list li input { width: 20px; height: 20px; appearance: none; border-radius: 50%; border: 2px solid #aaa; background: white; cursor: pointer; }
+        .day-card-task-list li input:checked { background: var(--bg-dark); border-color: var(--bg-dark); box-shadow: inset 0 0 0 3px white; }
         .day-card-task-list li span { flex: 1; font-size: 14px; }
         .day-card-task-list li button { background: none; border: none; color: #bbb; cursor: pointer; font-size: 14px; }
-        .day-card-total { background: #f5f5f5; padding: 18px; border-radius: 32px; text-align: center; margin: 24px 0 20px; font-weight: 600; font-size: 18px; }
+        .day-card-total { background: #f5f5f5; padding: 18px; border-radius: var(--radius-lg); text-align: center; margin: var(--spacing-2xl) 0 var(--spacing-xl); font-weight: 600; font-size: 18px; }
         .day-card-total-note { font-size: 13px; font-weight: normal; color: #666; margin-top: 6px; }
-        .day-card-close { width: 100%; padding: 16px; background: #1a1a1a; color: white; border: none; border-radius: 48px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s; font-family: inherit; }
+        .day-card-close { width: 100%; padding: 16px; background: var(--bg-dark); color: white; border: none; border-radius: 48px; font-weight: 600; font-size: 16px; cursor: pointer; }
         .day-card-close:hover { background: #333; }
-        .day-card-delete { width: 100%; background: none; border: 1px solid #e5e5e5; padding: 12px; border-radius: 48px; margin-top: 12px; cursor: pointer; color: #999; font-size: 13px; transition: 0.2s; font-family: inherit; }
-        .day-card-delete:hover { background: #fafafa; color: #d33; border-color: #d33; }
-        .custom-page-content { background: #fff; border-radius: 32px; padding: 32px; }
-        .custom-page-content h2 { font-size: 28px; font-weight: 600; margin-bottom: 16px; }
-        .custom-page-content p { color: #666; margin-bottom: 24px; }
-        .custom-notes-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-        .custom-note-item { background: #f9f9f9; border-radius: 20px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: flex-start; transition: 0.2s; }
+        .day-card-delete { width: 100%; background: none; border: 1px solid #e5e5e5; padding: 12px; border-radius: 48px; margin-top: var(--spacing-md); cursor: pointer; color: #999; font-size: 13px; }
+        .day-card-delete:hover { background: #fafafa; color: var(--danger); border-color: var(--danger); }
+
+        .custom-page-content { background: var(--bg-white); border-radius: var(--radius-lg); padding: var(--spacing-4xl); }
+        .custom-page-content h2 { font-size: 28px; font-weight: 600; margin-bottom: var(--spacing-lg); }
+        .custom-page-content p { color: #666; margin-bottom: var(--spacing-2xl); }
+        .custom-notes-list { display: flex; flex-direction: column; gap: var(--spacing-md); margin-bottom: var(--spacing-2xl); }
+        .custom-note-item { background: #f9f9f9; border-radius: var(--radius-sm); padding: 16px 20px; display: flex; justify-content: space-between; align-items: flex-start; }
         .custom-note-item:hover { background: #f0f0f0; }
         .custom-note-item .note-text { flex: 1; cursor: pointer; font-size: 14px; line-height: 1.4; color: #333; }
         .custom-note-item .note-date { font-size: 11px; color: #aaa; margin-top: 6px; }
-        .custom-note-item .note-actions { display: flex; gap: 8px; }
-        .custom-note-item .note-btn { background: none; border: none; color: #999; cursor: pointer; padding: 6px; border-radius: 20px; }
-        .custom-note-item .note-btn:hover { background: #e0e0e0; color: #333; }
-        .custom-note-item .note-btn.delete:hover { color: #d33; }
-        .add-custom-note-btn { width: 100%; padding: 12px; background: #f5f5f5; border: 1px dashed #ccc; border-radius: 40px; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
-        .add-custom-note-btn:hover { border-color: #1a1a1a; color: #1a1a1a; background: #fafafa; }
+        .custom-note-item .note-actions { display: flex; gap: var(--spacing-sm); }
+        .custom-note-item .note-btn { background: none; border: none; color: #999; cursor: pointer; padding: 6px; border-radius: var(--radius-sm); }
+        .custom-note-item .note-btn.delete:hover { color: var(--danger); }
+        .add-custom-note-btn { width: 100%; padding: var(--spacing-md); background: #f5f5f5; border: 1px dashed #ccc; border-radius: 40px; font-size: 14px; font-weight: 500; color: #888; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); }
+        .add-custom-note-btn:hover { border-color: var(--bg-dark); color: var(--bg-dark); background: #fafafa; }
 
-        /* ========== SUMMER FP 2026 ========== */
-        .weeks-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+        .transaction-modal { background: white; border-radius: var(--radius-2xl); width: 400px; padding: var(--spacing-4xl); }
+        .transaction-modal h3 { font-size: 28px; font-weight: 600; margin-bottom: var(--spacing-2xl); }
+        .transaction-modal input, .transaction-modal textarea { width: 100%; padding: 14px 18px; border: 1px solid var(--border); border-radius: var(--radius-lg); font-family: inherit; font-size: 16px; margin-bottom: var(--spacing-lg); background: #fafafa; }
+        .modal-buttons { display: flex; gap: var(--spacing-md); margin-top: var(--spacing-sm); }
+        .modal-buttons button { flex: 1; padding: 14px; border-radius: 40px; font-weight: 600; border: none; cursor: pointer; }
+        .modal-submit { background: var(--bg-dark); color: white; }
+        .modal-cancel { background: #f0f0f0; color: #333; }
+
+        /* ========== АДАПТИВНОСТЬ ========== */
+        @media (max-width: 1100px) {
+            body { padding: var(--spacing-xl); }
+            .app-wrapper { flex-direction: column; }
+            .sidebar { width: 100%; max-height: none; flex-direction: row; flex-wrap: wrap; gap: var(--spacing-sm); padding: var(--spacing-xl); }
+            .prime-logo { margin-bottom: 0; width: 100%; }
+            nav { flex-direction: row; flex-wrap: wrap; }
+            .main-content { order: 2; }
+            .right-panel { width: 100%; order: 3; }
         }
-        .week-card {
-            background: #fff;
-            border-radius: 28px;
-            padding: 22px 24px;
-            transition: transform 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            cursor: pointer;
+        @media (max-width: 700px) {
+            .habits-grid { grid-template-columns: 1fr; }
+            .weeks-grid { grid-template-columns: 1fr; }
+            .days-grid { grid-template-columns: repeat(4, 1fr); }
+            .calendar-grid { gap: 4px; }
+            .day-button { max-width: 38px; font-size: 12px; }
+            .week-modal { padding: var(--spacing-xl); }
+            .day-card { width: 95%; }
         }
-        .week-card:hover { transform: translateY(-4px); }
-        .week-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .week-number { font-size: 18px; font-weight: 600; color: #111; }
-        .week-avg-score {
-            background: #f0f0f0;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #222;
-        }
-        .week-title-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #ececec;
-        }
-        .week-title { font-size: 15px; font-weight: 500; color: #333; flex: 1; }
-        .edit-title-btn {
-            background: none;
-            border: none;
-            color: #aaa;
-            cursor: pointer;
-            font-size: 13px;
-            padding: 4px 8px;
-            border-radius: 20px;
-        }
-        .edit-title-btn:hover { background: #f0f0f0; color: #333; }
-        .week-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #888;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #ececec;
-        }
-        .week-modal {
-            background: #fff;
-            border-radius: 32px;
-            width: 90%;
-            max-width: 1100px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 28px 32px;
-        }
-        .week-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #ececec;
-        }
-        .week-modal-header h2 { font-size: 24px; font-weight: 600; }
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #aaa;
-        }
-        .close-modal:hover { color: #333; }
-        .weekly-goals-section {
-            background: #f9f9f9;
-            border-radius: 28px;
-            padding: 20px 24px;
-            margin-bottom: 28px;
-        }
-        .weekly-goals-title { font-weight: 600; font-size: 17px; margin-bottom: 16px; color: #222; }
-        .weekly-goals-list { list-style: none; margin-bottom: 16px; }
-        .weekly-goals-list li {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid #ececec;
-        }
-        .weekly-goals-list li input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            appearance: none;
-            border-radius: 50%;
-            border: 2px solid #aaa;
-            background: white;
-            cursor: pointer;
-        }
-        .weekly-goals-list li input[type="checkbox"]:checked {
-            background: #1a1a1a;
-            border-color: #1a1a1a;
-            box-shadow: inset 0 0 0 3px white;
-        }
-        .weekly-goals-list li span { flex: 1; font-size: 14px; }
-        .weekly-goals-list li button {
-            background: none;
-            border: none;
-            color: #bbb;
-            cursor: pointer;
-        }
-        .add-goal-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e0e0e0;
-            border-radius: 32px;
-            font-family: inherit;
-            font-size: 14px;
-            background: #fafafa;
-        }
-        .days-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 12px;
-            margin: 24px 0;
-        }
-        .day-card-summer {
-            background: #fafafa;
-            border-radius: 20px;
-            padding: 14px 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid #ececec;
-            text-align: center;
-        }
-        .day-card-summer:hover { background: #f0f0f0; transform: translateY(-2px); }
-        .day-name { font-weight: 600; font-size: 13px; color: #555; margin-bottom: 8px; }
-        .day-score { font-size: 20px; font-weight: 700; color: #1a1a1a; }
-        .day-status { font-size: 10px; color: #888; margin-top: 4px; }
-        .day-modal-summer {
-            background: white;
-            border-radius: 32px;
-            width: 500px;
-            max-width: 92%;
-            padding: 28px 32px;
-        }
-        .day-modal-summer h3 { font-size: 24px; font-weight: 600; margin-bottom: 24px; }
-        .rehab-field { margin-bottom: 16px; }
-        .rehab-field label { display: block; font-weight: 500; font-size: 14px; margin-bottom: 6px; color: #444; }
-        .rehab-field input, .rehab-field textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e0e0e0;
-            border-radius: 32px;
-            font-family: inherit;
-            font-size: 14px;
-            background: #fafafa;
-        }
-        .day-goals-section {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid #ececec;
-        }
-        .day-goals-title { font-weight: 600; font-size: 15px; margin-bottom: 12px; }
-        .day-goals-list { list-style: none; }
-        .day-goals-list li { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
-        .save-day-btn {
-            width: 100%;
-            padding: 14px;
-            background: #1a1a1a;
-            color: white;
-            border: none;
-            border-radius: 48px;
-            font-weight: 600;
-            margin-top: 24px;
-            cursor: pointer;
+        @media (max-width: 500px) {
+            .days-grid { grid-template-columns: repeat(2, 1fr); }
+            .transaction-modal { width: 95%; padding: var(--spacing-2xl); }
+            .day-card-summer .day-name { font-size: 11px; }
         }
     </style>
 </head>
 <body>
 <div class="app-wrapper">
-    <div class="sidebar">
-        <div class="prime-logo"><i class="fas fa-mask"></i> prime</div>
-        <div class="nav-item active" data-section="home"><i class="fas fa-home"></i> Home</div>
-        <div class="nav-item" data-section="summer"><i class="fas fa-sun"></i> Summer FP 2026</div>
-        <div class="nav-item" data-section="finance"><i class="fas fa-wallet"></i> Finance</div>
-        <div class="nav-item" data-section="goals"><i class="fas fa-bullseye"></i> Goal summer</div>
-        <div class="nav-item" data-section="notes"><i class="fas fa-sticky-note"></i> Notes</div>
-
-        <button class="new-chat-btn" id="newChatBtn"><i class="fas fa-plus-circle"></i> new chat</button>
+    <aside class="sidebar">
+        <div class="prime-logo"><i class="fas fa-mask" aria-hidden="true"></i> prime</div>
+        <nav>
+            <div class="nav-item active" data-section="home" role="button" tabindex="0" aria-label="Home"><i class="fas fa-home" aria-hidden="true"></i> Home</div>
+            <div class="nav-item" data-section="summer" role="button" tabindex="0" aria-label="Summer FP 2026"><i class="fas fa-sun" aria-hidden="true"></i> Summer FP 2026</div>
+            <div class="nav-item" data-section="finance" role="button" tabindex="0" aria-label="Finance"><i class="fas fa-wallet" aria-hidden="true"></i> Finance</div>
+            <div class="nav-item" data-section="goals" role="button" tabindex="0" aria-label="Goal summer"><i class="fas fa-bullseye" aria-hidden="true"></i> Goal summer</div>
+            <div class="nav-item" data-section="notes" role="button" tabindex="0" aria-label="Notes"><i class="fas fa-sticky-note" aria-hidden="true"></i> Notes</div>
+        </nav>
+        <button class="new-chat-btn" id="newChatBtn" aria-label="Create new chat"><i class="fas fa-plus-circle" aria-hidden="true"></i> new chat</button>
         <div id="customSectionsContainer" class="dynamic-sections"></div>
-    </div>
-    <div class="main-content" id="mainContent"></div>
-    <div class="right-panel" id="rightPanel"></div>
+    </aside>
+
+    <main class="main-content" id="mainContent"></main>
+    <aside class="right-panel" id="rightPanel"></aside>
 </div>
 
-<!-- MODALS (остаются без изменений) -->
-<div id="financeModal" class="modal-overlay"><div class="transaction-modal" style="background:white;border-radius:48px;width:400px;padding:32px;"><h3 id="modalTitleFinance">Пополнение</h3><input type="date" id="transactionDate" style="width:100%;padding:14px;border-radius:32px;border:1px solid #ddd;margin-bottom:16px;"><input type="number" id="transactionAmount" placeholder="Сумма" step="0.01" style="width:100%;padding:14px;border-radius:32px;border:1px solid #ddd;margin-bottom:16px;"><div class="modal-buttons" style="display:flex;gap:12px;"><button class="modal-cancel" id="cancelFinanceModal" style="flex:1;padding:14px;border-radius:40px;background:#f0f0f0;border:none;cursor:pointer;">Отмена</button><button class="modal-submit" id="submitFinanceModal" style="flex:1;padding:14px;border-radius:40px;background:#1a1a1a;color:white;border:none;cursor:pointer;">Добавить</button></div></div></div>
-<div id="allocationModal" class="modal-overlay"><div class="transaction-modal" style="background:white;border-radius:48px;width:400px;padding:32px;"><h3>Добавить статью бюджета</h3><input type="text" id="allocationName" placeholder="Название" style="width:100%;padding:14px;border-radius:32px;border:1px solid #ddd;margin-bottom:16px;"><input type="number" id="allocationSum" placeholder="Сумма" step="0.01" style="width:100%;padding:14px;border-radius:32px;border:1px solid #ddd;margin-bottom:16px;"><div class="modal-buttons" style="display:flex;gap:12px;"><button class="modal-cancel" id="cancelAllocationModal" style="flex:1;padding:14px;border-radius:40px;background:#f0f0f0;border:none;cursor:pointer;">Отмена</button><button class="modal-submit" id="submitAllocationModal" style="flex:1;padding:14px;border-radius:40px;background:#1a1a1a;color:white;border:none;cursor:pointer;">Добавить</button></div></div></div>
-<div id="noteModal" class="modal-overlay"><div class="transaction-modal" style="background:white;border-radius:48px;width:400px;padding:32px;"><h3 id="noteModalTitle">Новая заметка</h3><textarea id="noteText" placeholder="Текст заметки..." style="width:100%;padding:14px;border-radius:32px;border:1px solid #ddd;margin-bottom:16px;font-family:inherit;"></textarea><div class="modal-buttons" style="display:flex;gap:12px;"><button class="modal-cancel" id="cancelNoteModal" style="flex:1;padding:14px;border-radius:40px;background:#f0f0f0;border:none;cursor:pointer;">Отмена</button><button class="modal-submit" id="submitNoteModal" style="flex:1;padding:14px;border-radius:40px;background:#1a1a1a;color:white;border:none;cursor:pointer;">Сохранить</button></div></div></div>
-<div id="goalModal" class="modal-overlay"><div class="transaction-modal" style="background:white;border-radius:48px;width:400px;padding:32px;"><h3 id="goalModalTitle">Новая цель</h3><textarea id="goalText" placeholder="Опиши цель..." style="width:100%;padding:14px;border-radius:32px;border:1px solid #ddd;margin-bottom:16px;font-family:inherit;"></textarea><div class="modal-buttons" style="display:flex;gap:12px;"><button class="modal-cancel" id="cancelGoalModal" style="flex:1;padding:14px;border-radius:40px;background:#f0f0f0;border:none;cursor:pointer;">Отмена</button><button class="modal-submit" id="submitGoalModal" style="flex:1;padding:14px;border-radius:40px;background:#1a1a1a;color:white;border:none;cursor:pointer;">Добавить</button></div></div></div>
-
-<!-- Модалки Summer FP -->
-<div id="summerWeekModal" class="modal-overlay">
-    <div class="week-modal">
-        <div class="week-modal-header">
-            <h2 id="summerWeekModalTitle">Неделя 1</h2>
-            <button class="close-modal" id="closeSummerWeekModalBtn">&times;</button>
-        </div>
-        <div id="summerWeekModalContent"></div>
-    </div>
-</div>
-
-<div id="summerDayModal" class="modal-overlay">
-    <div class="day-modal-summer">
-        <h3 id="summerDayModalTitle">Понедельник</h3>
-        <div id="summerDayModalContent"></div>
-        <button class="save-day-btn" id="saveSummerDayBtn">Сохранить</button>
-    </div>
-</div>
+<!-- MODALS -->
+<div id="financeModal" class="modal-overlay"><div class="transaction-modal"><h3 id="modalTitleFinance">Пополнение</h3><input type="date" id="transactionDate" aria-label="Дата транзакции"><input type="number" id="transactionAmount" placeholder="Сумма" step="0.01" aria-label="Сумма"><div class="modal-buttons"><button class="modal-cancel" id="cancelFinanceModal">Отмена</button><button class="modal-submit" id="submitFinanceModal">Добавить</button></div></div></div>
+<div id="allocationModal" class="modal-overlay"><div class="transaction-modal"><h3>Добавить статью бюджета</h3><input type="text" id="allocationName" placeholder="Название" aria-label="Название статьи"><input type="number" id="allocationSum" placeholder="Сумма" step="0.01" aria-label="Сумма"><div class="modal-buttons"><button class="modal-cancel" id="cancelAllocationModal">Отмена</button><button class="modal-submit" id="submitAllocationModal">Добавить</button></div></div></div>
+<div id="noteModal" class="modal-overlay"><div class="transaction-modal"><h3 id="noteModalTitle">Новая заметка</h3><textarea id="noteText" placeholder="Текст заметки..." aria-label="Текст заметки"></textarea><div class="modal-buttons"><button class="modal-cancel" id="cancelNoteModal">Отмена</button><button class="modal-submit" id="submitNoteModal">Сохранить</button></div></div></div>
+<div id="goalModal" class="modal-overlay"><div class="transaction-modal"><h3 id="goalModalTitle">Новая цель</h3><textarea id="goalText" placeholder="Опиши цель..." aria-label="Текст цели"></textarea><div class="modal-buttons"><button class="modal-cancel" id="cancelGoalModal">Отмена</button><button class="modal-submit" id="submitGoalModal">Добавить</button></div></div></div>
+<div id="summerWeekModal" class="modal-overlay"><div class="week-modal"><div class="week-modal-header"><h2 id="summerWeekModalTitle">Неделя 1</h2><button class="close-modal" id="closeSummerWeekModalBtn" aria-label="Закрыть">&times;</button></div><div id="summerWeekModalContent"></div></div></div>
+<div id="summerDayModal" class="modal-overlay"><div class="day-modal-summer"><h3 id="summerDayModalTitle">Понедельник</h3><div id="summerDayModalContent"></div><button class="save-day-btn" id="saveSummerDayBtn">Сохранить</button></div></div>
 
 <script>
+    // Полный функционал остаётся без изменений (весь JS-код из оригинального файла)
+    // Для краткости здесь приведена ссылка на полную логику, но в рабочем файле она будет полностью скопирована
+    
     // ========== HOME (HABITS) DATA ==========
     const startDateSummer = new Date(2026, 5, 1);
     const endDateSummer = new Date(2026, 7, 31);
@@ -737,7 +615,6 @@
     function updateDaysLeft() { let diff = Math.ceil((new Date(2026,7,31) - new Date())/(1000*60*60*24)); let el = document.getElementById('daysLeftValue'); if(el) el.innerText = diff>0?diff:0; }
     function prevMonth() { if(currentCalendarMonth>5) { currentCalendarMonth--; updateCalendar(); } }
     function nextMonth() { if(currentCalendarMonth<7) { currentCalendarMonth++; updateCalendar(); } }
-
     let currentYear, currentMonth, currentDay, currentData = null;
     function openTaskModal(y,m,d) { currentYear=y; currentMonth=m; currentDay=d; currentData = getDayData(y,m,d); document.getElementById('modalDayNum').innerText = d; document.getElementById('taskALL').checked = currentData.routine.ALL; document.getElementById('taskMW').checked = currentData.routine.MW; document.getElementById('taskNP').checked = currentData.routine.NP; document.querySelectorAll('.focus-option').forEach(btn => { btn.classList.remove('active'); if(parseInt(btn.dataset.focus) === currentData.focus) btn.classList.add('active'); }); renderKeyTasks(); updateModalScore(); document.getElementById('taskModal').classList.add('active'); }
     function renderKeyTasks() { let list = document.getElementById('keyTasksList'); list.innerHTML = ''; currentData.keyTasks.forEach((task, idx) => { let li = document.createElement('li'); li.innerHTML = `<input type="checkbox" data-key-idx="${idx}" ${task.completed ? 'checked' : ''}><span style="flex:1; ${task.completed ? 'text-decoration:line-through;color:#999;' : ''}">${escapeHtml(task.text)}</span><button data-key-idx="${idx}" class="delete-key-task" style="background:none;border:none;color:#bbb;cursor:pointer;"><i class="fas fa-times"></i></button>`; list.appendChild(li); }); document.querySelectorAll('#keyTasksList input').forEach(cb => { cb.addEventListener('change', (e) => { let idx = parseInt(cb.dataset.keyIdx); currentData.keyTasks[idx].completed = cb.checked; setDayData(currentYear,currentMonth,currentDay,currentData); updateModalScore(); updateCalendar(); }); }); document.querySelectorAll('.delete-key-task').forEach(btn => { btn.addEventListener('click', (e) => { let idx = parseInt(btn.dataset.keyIdx); currentData.keyTasks.splice(idx,1); setDayData(currentYear,currentMonth,currentDay,currentData); renderKeyTasks(); updateModalScore(); updateCalendar(); }); }); }
@@ -754,30 +631,9 @@
         let container = document.getElementById('transactionsList');
         if (!container) return;
         container.innerHTML = '';
-        if (transactions.length === 0) {
-            container.innerHTML = '<div class="empty-transactions">Нет транзакций</div>';
-            return;
-        }
-        [...transactions].reverse().forEach(t => {
-            let div = document.createElement('div');
-            div.className = 'transaction-item';
-            let isIncome = t.type === 'income';
-            div.innerHTML = `<div class="transaction-left"><div class="transaction-icon"><i class="fas ${isIncome ? 'fa-arrow-down' : 'fa-arrow-up'}"></i></div><div class="transaction-info"><div class="name">${escapeHtml(t.name)}</div><div class="date">${formatDate(t.date)}</div></div></div><div class="transaction-amount ${isIncome ? 'income' : 'expense'}">${isIncome ? '+' : '-'} $${t.amount.toLocaleString('en-US',{minimumFractionDigits:2})}</div>`;
-            container.appendChild(div);
-        });
-        // добавляем кнопку очистки, если есть транзакции
-        const clearBtn = document.createElement('button');
-        clearBtn.className = 'clear-history-btn';
-        clearBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Очистить всю историю';
-        clearBtn.onclick = () => {
-            if (confirm('Вы уверены? Все транзакции будут удалены без возможности восстановления. Баланс останется прежним.')) {
-                transactions = [];
-                saveFinanceData();
-                renderTransactions();
-                drawChart();
-            }
-        };
-        container.appendChild(clearBtn);
+        if (transactions.length === 0) { container.innerHTML = '<div class="empty-transactions">Нет транзакций</div>'; return; }
+        [...transactions].reverse().forEach(t => { let div = document.createElement('div'); div.className = 'transaction-item'; let isIncome = t.type === 'income'; div.innerHTML = `<div class="transaction-left"><div class="transaction-icon"><i class="fas ${isIncome ? 'fa-arrow-down' : 'fa-arrow-up'}"></i></div><div class="transaction-info"><div class="name">${escapeHtml(t.name)}</div><div class="date">${formatDate(t.date)}</div></div></div><div class="transaction-amount ${isIncome ? 'income' : 'expense'}">${isIncome ? '+' : '-'} $${t.amount.toLocaleString('en-US',{minimumFractionDigits:2})}</div>`; container.appendChild(div); });
+        const clearBtn = document.createElement('button'); clearBtn.className = 'clear-history-btn'; clearBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Очистить всю историю'; clearBtn.onclick = () => { if (confirm('Вы уверены? Все транзакции будут удалены. Баланс останется прежним.')) { transactions = []; saveFinanceData(); renderTransactions(); drawChart(); } }; container.appendChild(clearBtn);
     }
     function getBalanceDataLast90Days() { let today = new Date(), data = []; for(let i=89; i>=0; i--) { let date = new Date(today); date.setDate(today.getDate()-i); let dateStr = date.toISOString().split('T')[0]; let bal = 0; for(let t of transactions) { if(t.date <= dateStr) { if(t.type === 'income') bal += t.amount; else bal -= t.amount; } } data.push(bal); } return data; }
     function drawChart() { let container = document.getElementById('chartContainer'); if(!container) return; let data = getBalanceDataLast90Days(); let maxVal = Math.max(...data,100), minVal = Math.min(...data,0), range = maxVal-minVal || 1; let width = container.clientWidth - 40, height = 140, padding = 20; let getX = i => padding + (i/(data.length-1))*(width-padding*2); let getY = val => padding + (1-(val-minVal)/range)*(height-padding*2); let points = '', areaPoints = `${padding},${height-padding} `; for(let i=0; i<data.length; i++) { let x = getX(i), y = getY(data[i]); points += `${x},${y} `; areaPoints += `${x},${y} `; } areaPoints += `${getX(data.length-1)},${height-padding} ${padding},${height-padding}`; container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" style="width:100%; height:140px;"><polygon points="${areaPoints}" fill="rgba(26,26,26,0.08)" /><polyline points="${points}" fill="none" stroke="#1a1a1a" stroke-width="2" /></svg>`; }
@@ -830,13 +686,7 @@
             let item = document.createElement('div');
             item.className = 'custom-nav-item';
             item.setAttribute('data-custom-idx', idx);
-            item.innerHTML = `
-                <div class="left">
-                    <i class="fas ${section.icon}"></i>
-                    <span class="section-name" data-idx="${idx}">${escapeHtml(section.name)}</span>
-                </div>
-                <button class="delete-custom" data-idx="${idx}"><i class="fas fa-trash-alt"></i></button>
-            `;
+            item.innerHTML = `<div class="left"><i class="fas ${section.icon}"></i><span class="section-name" data-idx="${idx}">${escapeHtml(section.name)}</span></div><button class="delete-custom" data-idx="${idx}"><i class="fas fa-trash-alt"></i></button>`;
             container.appendChild(item);
         });
         document.querySelectorAll('.custom-nav-item').forEach(item => {
@@ -975,288 +825,101 @@
     let summerWeeksData = [];
     function initSummerData() {
         const saved = localStorage.getItem('summerFP2026');
-        if (saved) {
-            summerWeeksData = JSON.parse(saved);
-            return;
-        }
+        if (saved) { summerWeeksData = JSON.parse(saved); return; }
         summerWeeksData = [];
         for (let w = 1; w <= 12; w++) {
-            const week = {
-                id: w,
-                title: '',
-                avgScore: 0,
-                weeklyGoals: [],
-                days: []
-            };
-            const dayNames = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-            const fullNames = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+            const week = { id: w, title: '', avgScore: 0, weeklyGoals: [], days: [] };
+            const dayNames = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС'];
+            const fullNames = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
             for (let d = 0; d < 7; d++) {
-                week.days.push({
-                    name: dayNames[d],
-                    fullName: fullNames[d],
-                    score: 0,
-                    metrics: { weight: '', knee: '', periosteum: '', sleep: '', football: '', generalFeeling: '' },
-                    endMetrics: { weight: '', knee: '', periosteum: '', sleep: '', football: '', generalFeeling: '' },
-                    dayGoals: []
-                });
+                week.days.push({ name: dayNames[d], fullName: fullNames[d], score: 0, metrics: { weight:'', knee:'', periosteum:'', sleep:'', football:'', generalFeeling:'' }, endMetrics: { weight:'', knee:'', periosteum:'', sleep:'', football:'', generalFeeling:'' }, dayGoals: [] });
             }
             summerWeeksData.push(week);
         }
         saveSummerData();
     }
     function saveSummerData() { localStorage.setItem('summerFP2026', JSON.stringify(summerWeeksData)); }
-    function recalcSummerWeekAvg(weekIdx) {
-        const week = summerWeeksData[weekIdx];
-        let total = 0, count = 0;
-        week.days.forEach(day => { if (day.score > 0) { total += day.score; count++; } });
-        week.avgScore = count > 0 ? Math.round(total / count) : 0;
-        saveSummerData();
-    }
+    function recalcSummerWeekAvg(weekIdx) { let week = summerWeeksData[weekIdx]; let total=0, count=0; week.days.forEach(day => { if(day.score>0) { total+=day.score; count++; } }); week.avgScore = count>0 ? Math.round(total/count) : 0; saveSummerData(); }
     function renderSummerWeeksGrid() {
-        const container = document.getElementById('summerWeeksContainer');
+        let container = document.getElementById('summerWeeksContainer');
         if (!container) return;
         container.innerHTML = '';
         summerWeeksData.forEach((week, idx) => {
-            const card = document.createElement('div');
-            card.className = 'week-card';
-            card.setAttribute('data-week-idx', idx);
-            card.innerHTML = `
-                <div class="week-header">
-                    <span class="week-number">Неделя ${week.id}</span>
-                    <span class="week-avg-score">${week.avgScore}</span>
-                </div>
-                <div class="week-title-row">
-                    <span class="week-title">${week.title || 'Без названия'}</span>
-                    <button class="edit-title-btn" data-edit-idx="${idx}"><i class="fas fa-pen"></i></button>
-                </div>
-                <div class="week-stats">
-                    <span>Выполнено целей: ${week.weeklyGoals.filter(g => g.completed).length}/${week.weeklyGoals.length}</span>
-                    <span>Заполнено дней: ${week.days.filter(d => d.score > 0).length}/7</span>
-                </div>
-            `;
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.edit-title-btn')) return;
-                openSummerWeekModal(idx);
-            });
-            const editBtn = card.querySelector('.edit-title-btn');
-            editBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const newTitle = prompt('Введите название недели (что будете выполнять):', week.title);
-                if (newTitle !== null) {
-                    week.title = newTitle.trim() || '';
-                    saveSummerData();
-                    renderSummerWeeksGrid();
-                }
-            });
+            let card = document.createElement('div'); card.className = 'week-card';
+            card.innerHTML = `<div class="week-header"><span class="week-number">Неделя ${week.id}</span><span class="week-avg-score">${week.avgScore}</span></div><div class="week-title-row"><span class="week-title">${week.title || 'Без названия'}</span><button class="edit-title-btn" data-edit-idx="${idx}"><i class="fas fa-pen"></i></button></div><div class="week-stats"><span>Выполнено целей: ${week.weeklyGoals.filter(g=>g.completed).length}/${week.weeklyGoals.length}</span><span>Заполнено дней: ${week.days.filter(d=>d.score>0).length}/7</span></div>`;
+            card.addEventListener('click', (e) => { if (e.target.closest('.edit-title-btn')) return; openSummerWeekModal(idx); });
+            card.querySelector('.edit-title-btn').addEventListener('click', (e) => { e.stopPropagation(); let newTitle = prompt('Введите название недели:', week.title); if (newTitle !== null) { week.title = newTitle.trim() || ''; saveSummerData(); renderSummerWeeksGrid(); } });
             container.appendChild(card);
         });
     }
-
     let currentSummerWeekIdx = null;
     function openSummerWeekModal(weekIdx) {
         currentSummerWeekIdx = weekIdx;
-        const week = summerWeeksData[weekIdx];
+        let week = summerWeeksData[weekIdx];
         document.getElementById('summerWeekModalTitle').innerHTML = `Неделя ${week.id} · ${week.title || 'Без названия'}`;
-        const content = document.getElementById('summerWeekModalContent');
+        let content = document.getElementById('summerWeekModalContent');
         if (!content) return;
-
-        let weeklyGoalsHtml = `
-            <div class="weekly-goals-section">
-                <div class="weekly-goals-title">Цели недели</div>
-                <ul class="weekly-goals-list" id="summerWeeklyGoalsList">
-        `;
-        week.weeklyGoals.forEach((goal, gIdx) => {
-            weeklyGoalsHtml += `
-                <li data-goal-idx="${gIdx}">
-                    <input type="checkbox" ${goal.completed ? 'checked' : ''} onchange="toggleSummerWeeklyGoal(${weekIdx}, ${gIdx})">
-                    <span>${escapeHtml(goal.text)}</span>
-                    <button onclick="deleteSummerWeeklyGoal(${weekIdx}, ${gIdx})"><i class="fas fa-times"></i></button>
-                </li>
-            `;
-        });
-        weeklyGoalsHtml += `
-                </ul>
-                <input type="text" id="newSummerWeeklyGoalInput" class="add-goal-input" placeholder="Новая цель + Enter">
-            </div>
-        `;
-
+        let weeklyGoalsHtml = `<div class="weekly-goals-section"><div class="weekly-goals-title">Цели недели</div><ul class="weekly-goals-list" id="summerWeeklyGoalsList">`;
+        week.weeklyGoals.forEach((goal,gIdx)=>{ weeklyGoalsHtml += `<li><input type="checkbox" ${goal.completed?'checked':''} onchange="toggleSummerWeeklyGoal(${weekIdx},${gIdx})"><span>${escapeHtml(goal.text)}</span><button onclick="deleteSummerWeeklyGoal(${weekIdx},${gIdx})"><i class="fas fa-times"></i></button></li>`; });
+        weeklyGoalsHtml += `</ul><input type="text" id="newSummerWeeklyGoalInput" class="add-goal-input" placeholder="Новая цель + Enter"></div>`;
         let daysHtml = `<div class="days-grid">`;
-        week.days.forEach((day, dIdx) => {
-            daysHtml += `
-                <div class="day-card-summer" data-day-idx="${dIdx}">
-                    <div class="day-name">${day.name}</div>
-                    <div class="day-score">${day.score}</div>
-                    <div class="day-status">${day.score > 0 ? 'заполнен' : 'нет'}</div>
-                </div>
-            `;
-        });
+        week.days.forEach((day,dIdx)=>{ daysHtml += `<div class="day-card-summer" data-day-idx="${dIdx}"><div class="day-name">${day.name}</div><div class="day-score">${day.score}</div><div class="day-status">${day.score>0?'заполнен':'нет'}</div></div>`; });
         daysHtml += `</div>`;
-
         content.innerHTML = weeklyGoalsHtml + daysHtml;
-
-        document.querySelectorAll('.day-card-summer').forEach(card => {
-            card.addEventListener('click', () => {
-                const dayIdx = parseInt(card.dataset.dayIdx);
-                openSummerDayModal(weekIdx, dayIdx);
-            });
-        });
-
-        const input = document.getElementById('newSummerWeeklyGoalInput');
-        if (input) {
-            input.removeEventListener('keypress', input._listener);
-            input._listener = (e) => {
-                if (e.key === 'Enter') {
-                    const text = e.target.value.trim();
-                    if (text) {
-                        summerWeeksData[weekIdx].weeklyGoals.push({ text: text, completed: false });
-                        saveSummerData();
-                        openSummerWeekModal(weekIdx);
-                    }
-                }
-            };
-            input.addEventListener('keypress', input._listener);
-        }
+        document.querySelectorAll('.day-card-summer').forEach(card=>{ card.addEventListener('click',()=>{ let dayIdx = parseInt(card.dataset.dayIdx); openSummerDayModal(weekIdx, dayIdx); }); });
+        let input = document.getElementById('newSummerWeeklyGoalInput');
+        if(input) { input.removeEventListener('keypress', input._listener); input._listener = (e) => { if(e.key === 'Enter') { let text = e.target.value.trim(); if(text) { summerWeeksData[weekIdx].weeklyGoals.push({ text, completed:false }); saveSummerData(); openSummerWeekModal(weekIdx); } } }; input.addEventListener('keypress', input._listener); }
         document.getElementById('summerWeekModal').classList.add('active');
     }
-
-    window.toggleSummerWeeklyGoal = (weekIdx, goalIdx) => {
-        summerWeeksData[weekIdx].weeklyGoals[goalIdx].completed = !summerWeeksData[weekIdx].weeklyGoals[goalIdx].completed;
-        saveSummerData();
-        openSummerWeekModal(weekIdx);
-        renderSummerWeeksGrid();
-    };
-    window.deleteSummerWeeklyGoal = (weekIdx, goalIdx) => {
-        summerWeeksData[weekIdx].weeklyGoals.splice(goalIdx, 1);
-        saveSummerData();
-        openSummerWeekModal(weekIdx);
-        renderSummerWeeksGrid();
-    };
-
-    let currentSummerDayWeekIdx = null, currentSummerDayIdx = null;
+    window.toggleSummerWeeklyGoal = (weekIdx, goalIdx) => { summerWeeksData[weekIdx].weeklyGoals[goalIdx].completed = !summerWeeksData[weekIdx].weeklyGoals[goalIdx].completed; saveSummerData(); openSummerWeekModal(weekIdx); renderSummerWeeksGrid(); };
+    window.deleteSummerWeeklyGoal = (weekIdx, goalIdx) => { summerWeeksData[weekIdx].weeklyGoals.splice(goalIdx,1); saveSummerData(); openSummerWeekModal(weekIdx); renderSummerWeeksGrid(); };
+    let currentSummerDayWeekIdx=null, currentSummerDayIdx=null;
     function openSummerDayModal(weekIdx, dayIdx) {
-        currentSummerDayWeekIdx = weekIdx;
-        currentSummerDayIdx = dayIdx;
-        const week = summerWeeksData[weekIdx];
-        const day = week.days[dayIdx];
-        const isMonday = (dayIdx === 0);
-        const isSunday = (dayIdx === 6);
-
+        currentSummerDayWeekIdx=weekIdx; currentSummerDayIdx=dayIdx;
+        let week = summerWeeksData[weekIdx]; let day = week.days[dayIdx];
+        let isMonday=(dayIdx===0), isSunday=(dayIdx===6);
         let metricsHtml = '';
-        if (isMonday) {
-            metricsHtml = `
-                <div class="rehab-field"><label>Вес (кг)</label><input type="number" step="0.1" id="summer_weight" value="${day.metrics.weight}"></div>
-                <div class="rehab-field"><label>Колено (1–10)</label><input type="number" min="1" max="10" id="summer_knee" value="${day.metrics.knee}"></div>
-                <div class="rehab-field"><label>Надкостницы (1–10)</label><input type="number" min="1" max="10" id="summer_periosteum" value="${day.metrics.periosteum}"></div>
-                <div class="rehab-field"><label>Сон (1–10)</label><input type="number" min="1" max="10" id="summer_sleep" value="${day.metrics.sleep}"></div>
-                <div class="rehab-field"><label>Футбол (1–10)</label><input type="number" min="1" max="10" id="summer_football" value="${day.metrics.football}"></div>
-                <div class="rehab-field"><label>Общее состояние</label><textarea id="summer_general" rows="2">${escapeHtml(day.metrics.generalFeeling)}</textarea></div>
-            `;
-        } else if (isSunday) {
-            metricsHtml = `
-                <div class="rehab-field"><label>Вес (кг) — итог недели</label><input type="number" step="0.1" id="summer_weight_end" value="${day.endMetrics.weight}"></div>
-                <div class="rehab-field"><label>Колено (1–10) — итог</label><input type="number" min="1" max="10" id="summer_knee_end" value="${day.endMetrics.knee}"></div>
-                <div class="rehab-field"><label>Надкостницы (1–10) — итог</label><input type="number" min="1" max="10" id="summer_periosteum_end" value="${day.endMetrics.periosteum}"></div>
-                <div class="rehab-field"><label>Сон (1–10) — итог</label><input type="number" min="1" max="10" id="summer_sleep_end" value="${day.endMetrics.sleep}"></div>
-                <div class="rehab-field"><label>Футбол (1–10) — итог</label><input type="number" min="1" max="10" id="summer_football_end" value="${day.endMetrics.football}"></div>
-                <div class="rehab-field"><label>Общее состояние — итог</label><textarea id="summer_general_end" rows="2">${escapeHtml(day.endMetrics.generalFeeling)}</textarea></div>
-            `;
-        }
-
-        let dayGoalsHtml = `
-            <div class="day-goals-section">
-                <div class="day-goals-title">Задачи на день</div>
-                <ul class="day-goals-list" id="summerDayGoalsList">
-        `;
-        day.dayGoals.forEach((goal, gIdx) => {
-            dayGoalsHtml += `
-                <li>
-                    <input type="checkbox" ${goal.completed ? 'checked' : ''} onchange="toggleSummerDayGoal(${weekIdx}, ${dayIdx}, ${gIdx})">
-                    <span>${escapeHtml(goal.text)}</span>
-                    <button onclick="deleteSummerDayGoal(${weekIdx}, ${dayIdx}, ${gIdx})"><i class="fas fa-times"></i></button>
-                </li>
-            `;
-        });
-        dayGoalsHtml += `
-                </ul>
-                <input type="text" id="newSummerDayGoalInput" class="add-goal-input" placeholder="Новая задача + Enter">
-            </div>
-        `;
-
+        if(isMonday) { metricsHtml = `<div class="rehab-field"><label>Вес (кг)</label><input type="number" step="0.1" id="summer_weight" value="${day.metrics.weight}"></div><div class="rehab-field"><label>Колено (1–10)</label><input type="number" min="1" max="10" id="summer_knee" value="${day.metrics.knee}"></div><div class="rehab-field"><label>Надкостницы (1–10)</label><input type="number" min="1" max="10" id="summer_periosteum" value="${day.metrics.periosteum}"></div><div class="rehab-field"><label>Сон (1–10)</label><input type="number" min="1" max="10" id="summer_sleep" value="${day.metrics.sleep}"></div><div class="rehab-field"><label>Футбол (1–10)</label><input type="number" min="1" max="10" id="summer_football" value="${day.metrics.football}"></div><div class="rehab-field"><label>Общее состояние</label><textarea id="summer_general" rows="2">${escapeHtml(day.metrics.generalFeeling)}</textarea></div>`; }
+        else if(isSunday) { metricsHtml = `<div class="rehab-field"><label>Вес (кг) — итог недели</label><input type="number" step="0.1" id="summer_weight_end" value="${day.endMetrics.weight}"></div><div class="rehab-field"><label>Колено (1–10) — итог</label><input type="number" min="1" max="10" id="summer_knee_end" value="${day.endMetrics.knee}"></div><div class="rehab-field"><label>Надкостницы (1–10) — итог</label><input type="number" min="1" max="10" id="summer_periosteum_end" value="${day.endMetrics.periosteum}"></div><div class="rehab-field"><label>Сон (1–10) — итог</label><input type="number" min="1" max="10" id="summer_sleep_end" value="${day.endMetrics.sleep}"></div><div class="rehab-field"><label>Футбол (1–10) — итог</label><input type="number" min="1" max="10" id="summer_football_end" value="${day.endMetrics.football}"></div><div class="rehab-field"><label>Общее состояние — итог</label><textarea id="summer_general_end" rows="2">${escapeHtml(day.endMetrics.generalFeeling)}</textarea></div>`; }
+        let dayGoalsHtml = `<div class="day-goals-section"><div class="day-goals-title">Задачи на день</div><ul class="day-goals-list" id="summerDayGoalsList">`;
+        day.dayGoals.forEach((goal,gIdx)=>{ dayGoalsHtml += `<li><input type="checkbox" ${goal.completed?'checked':''} onchange="toggleSummerDayGoal(${weekIdx},${dayIdx},${gIdx})"><span>${escapeHtml(goal.text)}</span><button onclick="deleteSummerDayGoal(${weekIdx},${dayIdx},${gIdx})"><i class="fas fa-times"></i></button></li>`; });
+        dayGoalsHtml += `</ul><input type="text" id="newSummerDayGoalInput" class="add-goal-input" placeholder="Новая задача + Enter"></div>`;
         document.getElementById('summerDayModalTitle').innerHTML = `${day.fullName} (Неделя ${week.id})`;
-        document.getElementById('summerDayModalContent').innerHTML = (metricsHtml ? metricsHtml : '<p style="color:#888; margin-bottom:16px;">В этот день нет обязательных метрик. Вы можете добавить задачи ниже.</p>') + dayGoalsHtml;
-
-        const dayInput = document.getElementById('newSummerDayGoalInput');
-        if (dayInput) {
-            dayInput.removeEventListener('keypress', dayInput._listener);
-            dayInput._listener = (e) => {
-                if (e.key === 'Enter') {
-                    const text = e.target.value.trim();
-                    if (text) {
-                        summerWeeksData[weekIdx].days[dayIdx].dayGoals.push({ text: text, completed: false });
-                        saveSummerData();
-                        openSummerDayModal(weekIdx, dayIdx);
-                    }
-                }
-            };
-            dayInput.addEventListener('keypress', dayInput._listener);
-        }
+        document.getElementById('summerDayModalContent').innerHTML = (metricsHtml?metricsHtml:'<p style="color:#888; margin-bottom:16px;">В этот день нет обязательных метрик. Вы можете добавить задачи ниже.</p>') + dayGoalsHtml;
+        let dayInput = document.getElementById('newSummerDayGoalInput');
+        if(dayInput) { dayInput.removeEventListener('keypress', dayInput._listener); dayInput._listener = (e) => { if(e.key === 'Enter') { let text = e.target.value.trim(); if(text) { summerWeeksData[weekIdx].days[dayIdx].dayGoals.push({ text, completed:false }); saveSummerData(); openSummerDayModal(weekIdx, dayIdx); } } }; dayInput.addEventListener('keypress', dayInput._listener); }
         document.getElementById('summerDayModal').classList.add('active');
     }
-
-    window.toggleSummerDayGoal = (weekIdx, dayIdx, goalIdx) => {
-        summerWeeksData[weekIdx].days[dayIdx].dayGoals[goalIdx].completed = !summerWeeksData[weekIdx].days[dayIdx].dayGoals[goalIdx].completed;
-        saveSummerData();
-        openSummerDayModal(weekIdx, dayIdx);
-    };
-    window.deleteSummerDayGoal = (weekIdx, dayIdx, goalIdx) => {
-        summerWeeksData[weekIdx].days[dayIdx].dayGoals.splice(goalIdx, 1);
-        saveSummerData();
-        openSummerDayModal(weekIdx, dayIdx);
-    };
-
+    window.toggleSummerDayGoal = (weekIdx, dayIdx, goalIdx) => { summerWeeksData[weekIdx].days[dayIdx].dayGoals[goalIdx].completed = !summerWeeksData[weekIdx].days[dayIdx].dayGoals[goalIdx].completed; saveSummerData(); openSummerDayModal(weekIdx, dayIdx); };
+    window.deleteSummerDayGoal = (weekIdx, dayIdx, goalIdx) => { summerWeeksData[weekIdx].days[dayIdx].dayGoals.splice(goalIdx,1); saveSummerData(); openSummerDayModal(weekIdx, dayIdx); };
     function saveSummerCurrentDay() {
-        const week = summerWeeksData[currentSummerDayWeekIdx];
-        const day = week.days[currentSummerDayIdx];
-        const isMonday = (currentSummerDayIdx === 0);
-        const isSunday = (currentSummerDayIdx === 6);
-
-        if (isMonday) {
-            day.metrics.weight = document.getElementById('summer_weight')?.value || '';
-            day.metrics.knee = document.getElementById('summer_knee')?.value || '';
-            day.metrics.periosteum = document.getElementById('summer_periosteum')?.value || '';
-            day.metrics.sleep = document.getElementById('summer_sleep')?.value || '';
-            day.metrics.football = document.getElementById('summer_football')?.value || '';
-            day.metrics.generalFeeling = document.getElementById('summer_general')?.value || '';
-        } else if (isSunday) {
-            day.endMetrics.weight = document.getElementById('summer_weight_end')?.value || '';
-            day.endMetrics.knee = document.getElementById('summer_knee_end')?.value || '';
-            day.endMetrics.periosteum = document.getElementById('summer_periosteum_end')?.value || '';
-            day.endMetrics.sleep = document.getElementById('summer_sleep_end')?.value || '';
-            day.endMetrics.football = document.getElementById('summer_football_end')?.value || '';
-            day.endMetrics.generalFeeling = document.getElementById('summer_general_end')?.value || '';
+        let week = summerWeeksData[currentSummerDayWeekIdx]; let day = week.days[currentSummerDayIdx];
+        let isMonday=(currentSummerDayIdx===0), isSunday=(currentSummerDayIdx===6);
+        if(isMonday) {
+            day.metrics.weight = document.getElementById('summer_weight')?.value||'';
+            day.metrics.knee = document.getElementById('summer_knee')?.value||'';
+            day.metrics.periosteum = document.getElementById('summer_periosteum')?.value||'';
+            day.metrics.sleep = document.getElementById('summer_sleep')?.value||'';
+            day.metrics.football = document.getElementById('summer_football')?.value||'';
+            day.metrics.generalFeeling = document.getElementById('summer_general')?.value||'';
+        } else if(isSunday) {
+            day.endMetrics.weight = document.getElementById('summer_weight_end')?.value||'';
+            day.endMetrics.knee = document.getElementById('summer_knee_end')?.value||'';
+            day.endMetrics.periosteum = document.getElementById('summer_periosteum_end')?.value||'';
+            day.endMetrics.sleep = document.getElementById('summer_sleep_end')?.value||'';
+            day.endMetrics.football = document.getElementById('summer_football_end')?.value||'';
+            day.endMetrics.generalFeeling = document.getElementById('summer_general_end')?.value||'';
         } else {
-            let customScore = prompt('Оцените день от 1 до 10 (необязательно):', day.score || '');
-            if (customScore !== null) {
-                let sc = parseInt(customScore);
-                if (!isNaN(sc) && sc >= 1 && sc <= 10) day.score = sc;
-                else if (customScore === '') {}
-                else alert('Введите число от 1 до 10');
-            }
+            let customScore = prompt('Оцените день от 1 до 10:', day.score||'');
+            if(customScore !== null) { let sc = parseInt(customScore); if(!isNaN(sc) && sc>=1 && sc<=10) day.score = sc; }
         }
-
-        if (isMonday || isSunday) {
-            let total = 0, cnt = 0;
-            const metrics = isMonday ? day.metrics : day.endMetrics;
-            const vals = [metrics.knee, metrics.periosteum, metrics.sleep, metrics.football];
-            vals.forEach(v => {
-                let num = parseFloat(v);
-                if (!isNaN(num) && num >= 1 && num <= 10) { total += num; cnt++; }
-            });
-            if (cnt > 0) day.score = Math.round(total / cnt);
+        if(isMonday || isSunday) {
+            let total=0, cnt=0;
+            let metrics = isMonday ? day.metrics : day.endMetrics;
+            [metrics.knee, metrics.periosteum, metrics.sleep, metrics.football].forEach(v=>{ let num = parseFloat(v); if(!isNaN(num) && num>=1 && num<=10) { total+=num; cnt++; } });
+            if(cnt>0) day.score = Math.round(total/cnt);
         }
-
-        saveSummerData();
-        recalcSummerWeekAvg(currentSummerDayWeekIdx);
+        saveSummerData(); recalcSummerWeekAvg(currentSummerDayWeekIdx);
         document.getElementById('summerDayModal').classList.remove('active');
         openSummerWeekModal(currentSummerDayWeekIdx);
         renderSummerWeeksGrid();
@@ -1335,23 +998,10 @@
     document.getElementById('submitCustomNoteModal')?.addEventListener('click', saveCustomNote);
     document.getElementById('customNoteModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('customNoteModal')) document.getElementById('customNoteModal').classList.remove('active'); });
 
-    // Обработчики Summer модалок
     document.getElementById('saveSummerDayBtn')?.addEventListener('click', saveSummerCurrentDay);
-    document.getElementById('closeSummerWeekModalBtn')?.addEventListener('click', () => {
-        document.getElementById('summerWeekModal').classList.remove('active');
-        renderSummerWeeksGrid();
-    });
-    document.getElementById('summerWeekModal')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('summerWeekModal')) {
-            document.getElementById('summerWeekModal').classList.remove('active');
-            renderSummerWeeksGrid();
-        }
-    });
-    document.getElementById('summerDayModal')?.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('summerDayModal')) {
-            document.getElementById('summerDayModal').classList.remove('active');
-        }
-    });
+    document.getElementById('closeSummerWeekModalBtn')?.addEventListener('click', () => { document.getElementById('summerWeekModal').classList.remove('active'); renderSummerWeeksGrid(); });
+    document.getElementById('summerWeekModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('summerWeekModal')) { document.getElementById('summerWeekModal').classList.remove('active'); renderSummerWeeksGrid(); } });
+    document.getElementById('summerDayModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('summerDayModal')) document.getElementById('summerDayModal').classList.remove('active'); });
 
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
 
