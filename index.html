@@ -628,7 +628,7 @@ const LEVEL_COLORS = {1:'#4ade80', 2:'#60a5fa', 3:'#fbbf24', 4:'#ef4444'};
 // =========================================
 // LOCALSTORAGE
 // =========================================
-const STORAGE_KEY='challenge_2027_data_v14';
+const STORAGE_KEY='challenge_2027_data_v15';
 const DEFAULT_DATA={
     work:{seasons:{1:[],2:[],3:[],4:[]}},
     book:{seasons:{1:[],2:[],3:[],4:[]}},
@@ -639,21 +639,35 @@ const DEFAULT_DATA={
     places:{1:null,2:null,3:null,4:null},
     goal:{name:null,done:null},
     tasks:{
-        pool:null, // null = не заполнен, иначе {1:[3 задания], 2:[3], 3:[3], 4:[3]}
-        chosen:{1:null,2:null,3:null,4:null}, // {level, name, points} для каждого сезона
-        completed:{1:null,2:null,3:null,4:null}, // true/false — отметка выполнения
-        taken:{1:[],2:[],3:[],4:[]} // какие задания заняты (для блокировки)
+        pool:null,
+        chosen:{1:null,2:null,3:null,4:null},
+        completed:{1:null,2:null,3:null,4:null},
+        taken:{1:[],2:[],3:[],4:[]}
     },
-    moneyYear:null, // 'full'|'partial'|'penalty'|'notfirst'
+    moneyYear:null,
     summaryShown:false,
     seasonsState:{current:1,finalized:{1:false,2:false,3:false,4:false}},
-    settings:{lastReload:null,moneyNotifShown:null,seasonEndNotifShown:{},taskNotifShown:{},moneyYearNotifShown:false}
+    settings:{lastReload:null,moneyNotifShown:null,seasonEndNotifShown:{},taskNotifShown:{},taskPickNotifShown:{},moneyYearNotifShown:false}
 };
-function loadData(){try{const r=localStorage.getItem(STORAGE_KEY);if(!r){localStorage.setItem(STORAGE_KEY,JSON.stringify(DEFAULT_DATA));return JSON.parse(JSON.stringify(DEFAULT_DATA));}const p=JSON.parse(r);const merged={...DEFAULT_DATA,...p};merged.tasks={...DEFAULT_DATA.tasks,...(p.tasks||{})};merged.settings={...DEFAULT_DATA.settings,...(p.settings||{})};return merged;}catch(e){localStorage.setItem(STORAGE_KEY,JSON.stringify(DEFAULT_DATA));return JSON.parse(JSON.stringify(DEFAULT_DATA));}}
+function loadData(){
+    try{
+        const r=localStorage.getItem(STORAGE_KEY);
+        if(!r){localStorage.setItem(STORAGE_KEY,JSON.stringify(DEFAULT_DATA));return JSON.parse(JSON.stringify(DEFAULT_DATA));}
+        const p=JSON.parse(r);
+        const merged={...DEFAULT_DATA,...p};
+        merged.tasks={...DEFAULT_DATA.tasks,...(p.tasks||{})};
+        merged.settings={...DEFAULT_DATA.settings,...(p.settings||{})};
+        return merged;
+    }catch(e){
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(DEFAULT_DATA));
+        return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+}
 function saveData(d){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}catch(e){}}
 let APP_DATA=loadData();
 if(!APP_DATA.settings.seasonEndNotifShown)APP_DATA.settings.seasonEndNotifShown={};
 if(!APP_DATA.settings.taskNotifShown)APP_DATA.settings.taskNotifShown={};
+if(!APP_DATA.settings.taskPickNotifShown)APP_DATA.settings.taskPickNotifShown={};
 
 // =========================================
 // NOTIFICATIONS + TOAST
@@ -746,8 +760,7 @@ function updateSeasonUI(){
     el.textContent=status==='active'?'Активный':status==='upcoming'?'Ожидание':'Завершён';
 }
 function updateCurrentDate(){document.getElementById('currentDate').textContent=formatDate(new Date());}
-
-// =========================================
+    // =========================================
 // ХЕЛПЕРЫ
 // =========================================
 function getMonthKey(dateObj){const d=new Date(dateObj);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
@@ -809,12 +822,10 @@ function calcTaskScore(seasonNum){
     const completed=APP_DATA.tasks.completed[seasonNum];
     const season=SEASONS[seasonNum-1];
     const seasonEnded=new Date()>season.end;
-    // Не выбрал задание к концу сезона → −1
     if(!chosen && seasonEnded) return -1;
     if(!chosen) return 0;
     if(completed===true) return chosen.points;
     if(completed===false) return -1;
-    // Не отмечено и сезон закончился → −1
     if(seasonEnded) return -1;
     return 0;
 }
@@ -826,5 +837,941 @@ function recalcAllScores(){
         saveData(APP_DATA);
         return;
     }
-    let tota
-[truncated]
+    let total=0;
+    for(let s=1;s<=4;s++){
+        let ss=0;
+        ss+=calcWorkScore(s);
+        ss+=calcBookScore(s);
+        ss+=calcTaskScore(s);
+        if(APP_DATA.places[s]===1)ss+=2;
+        else if(APP_DATA.places[s]===2)ss+=1;
+        else if(APP_DATA.places[s]===3)ss-=2;
+        APP_DATA.scores.seasons[s]=ss;
+        total+=ss;
+    }
+    if(APP_DATA.goal.done===true)total+=7;
+    if(APP_DATA.moneyYear==='full')total+=5;
+    else if(APP_DATA.moneyYear==='partial')total+=2;
+    else if(APP_DATA.moneyYear==='penalty')total-=3;
+    APP_DATA.scores.total=total;
+    saveData(APP_DATA);
+}
+function finalizeSeasons(){
+    const now=new Date();
+    for(const s of SEASONS){
+        if(now>s.end&&!APP_DATA.seasonsState.finalized[s.number]){
+            APP_DATA.seasonsState.finalized[s.number]=true;
+        }
+    }
+    for(let s=1;s<=4;s++){
+        if(APP_DATA.seasonsState.finalized[s]) APP_DATA.scores.past[s]=APP_DATA.scores.seasons[s]||0;
+    }
+    saveData(APP_DATA);
+}
+
+// =========================================
+// MONEY ALERT
+// =========================================
+function isMoneyReportAllowed(){
+    const now=new Date();
+    if(now.getFullYear()!==2027)return false;
+    const m=now.getMonth(),d=now.getDate();
+    if(m===1)return d===28;
+    return d===30;
+}
+function updateMoneyAlert(){
+    const now=new Date();
+    const card=document.getElementById('moneyCard');
+    const badge=document.getElementById('moneyAlertBadge');
+    if(!card||!badge)return;
+    let showAlert=false;
+    if(now.getFullYear()===2027 && now>=new Date(2027,0,1) && now<=new Date(2027,11,31,23,59,59)){
+        const m=now.getMonth(),d=now.getDate();
+        const isReport=(m===1)?d===28:d===30;
+        if(isReport){
+            const monthKey=`${now.getFullYear()}-${String(m+1).padStart(2,'0')}`;
+            if(!APP_DATA.money.monthly || !APP_DATA.money.monthly[monthKey]) showAlert=true;
+        }
+    }
+    card.classList.toggle('money-alert',showAlert);
+    badge.style.display=showAlert?'flex':'none';
+}
+
+// =========================================
+// UI
+// =========================================
+function updateUIFromData(){
+    finalizeSeasons();
+    recalcAllScores();
+    const{season}=getCurrentSeason();
+    document.getElementById('totalScore').textContent=APP_DATA.scores.total||0;
+    document.getElementById('seasonScore').textContent=APP_DATA.scores.seasons[season.number]||0;
+    document.getElementById('workCount').textContent=(APP_DATA.work.seasons[season.number]||[]).length;
+    document.getElementById('bookCount').textContent=calcBooksInSeason(season.number);
+    document.getElementById('moneyTotal').textContent=APP_DATA.money.total||0;
+    const totalHistory=(APP_DATA.work.seasons?Object.values(APP_DATA.work.seasons).flat().length:0)
+        +(APP_DATA.book.seasons?Object.values(APP_DATA.book.seasons).flat().length:0)
+        +(APP_DATA.money.history?APP_DATA.money.history.length:0);
+    document.getElementById('historyCount').textContent=totalHistory;
+    const prevSeason=season.number>1?season.number-1:null;
+    document.getElementById('pastSeasonScore').textContent=prevSeason?(APP_DATA.scores.past[prevSeason]||0)+' баллов':'0 баллов';
+    const prevPrev=season.number>2?season.number-2:null;
+    document.getElementById('pastPastSeasonScore').textContent='Позапрошлый сезон '+(prevPrev?(APP_DATA.scores.past[prevPrev]||0):0)+' баллов';
+    document.getElementById('goalName').textContent=APP_DATA.goal.name||'Личная цель';
+    updateTaskPanel();
+    updateSummaryButton();
+    updateNotifDot();
+    updateMoneyAlert();
+}
+function updateTaskPanel(){
+    const{season}=getCurrentSeason();
+    const chosen=APP_DATA.tasks.chosen[season.number];
+    const nameEl=document.getElementById('taskName');
+    const levelEl=document.getElementById('taskLevelLabel');
+    const ptsEl=document.getElementById('taskPoints');
+    const barEl=document.getElementById('taskLevelBar');
+    if(!APP_DATA.tasks.pool){
+        nameEl.textContent='Нажмите — заполнить задания';
+        levelEl.textContent='Пул заданий пуст';
+        ptsEl.textContent='+0';
+        barEl.style.background='#48484a';
+        return;
+    }
+    if(!chosen){
+        nameEl.textContent='Не выбрано';
+        levelEl.textContent='Уровень не выбран';
+        ptsEl.textContent='+0';
+        barEl.style.background='#48484a';
+        return;
+    }
+    const completed=APP_DATA.tasks.completed[season.number];
+    let suffix='';
+    if(completed===true)suffix=' ✓';
+    else if(completed===false)suffix=' ✗';
+    nameEl.textContent=chosen.name+suffix;
+    levelEl.textContent='Уровень '+chosen.level;
+    ptsEl.textContent='+'+chosen.points;
+    barEl.style.background=LEVEL_COLORS[chosen.level];
+}
+function updateSummaryButton(){
+    const now=new Date();
+    const show=now>=new Date(2027,11,25,0,0,0);
+    document.getElementById('summaryBtnCard').style.display=show?'block':'none';
+}
+
+// =========================================
+// TIMER
+// =========================================
+function calculateDaysLeft(){
+    const now=new Date();
+    const startDate=new Date(2027,0,1),endDate=new Date(2027,11,31,23,59,59);
+    if(now<startDate)return 365;
+    if(now>endDate)return 0;
+    return Math.ceil((endDate-now)/(1000*60*60*24));
+}
+function updateTimerDisplay(){document.getElementById('timerDaysNumber').textContent=calculateDaysLeft();}
+function openTimer(){updateTimerDisplay();document.getElementById('timerModalOverlay').classList.add('open');document.getElementById('timerModalSheet').classList.add('open');document.body.style.overflow='hidden';}
+function closeTimer(){document.getElementById('timerModalOverlay').classList.remove('open');document.getElementById('timerModalSheet').classList.remove('open');document.getElementById('timerModalSheet').style.transform='';document.body.style.overflow='';}
+function handleTimerClick(e,btn){createRipple(e,btn,'ripple');setTimeout(openTimer,100);}
+
+// =========================================
+// SEASON
+// =========================================
+function openSeason(e,btn){createRipple(e,btn,'ripple');updateSeasonUI();setTimeout(()=>{document.getElementById('seasonModalOverlay').classList.add('open');document.getElementById('seasonModalSheet').classList.add('open');document.body.style.overflow='hidden';},80);}
+function closeSeason(){document.getElementById('seasonModalOverlay').classList.remove('open');document.getElementById('seasonModalSheet').classList.remove('open');document.getElementById('seasonModalSheet').style.transform='';document.body.style.overflow='';}
+
+// =========================================
+// WORK
+// =========================================
+let selectedWorkType=null;
+let editingWorkDate=null;
+let editingWorkSeason=null;
+function openWorkForm(){
+    document.getElementById('workModalTitle').textContent=editingWorkDate?'Редактировать тренировку':'Новая тренировка';
+    document.getElementById('workDate').value=formatDate(new Date());
+    if(!editingWorkDate){
+        selectedWorkType=null;
+        document.getElementById('workCustomName').style.display='none';
+        document.getElementById('workCustomName').value='';
+        document.getElementById('workSubmit').disabled=true;
+        document.querySelectorAll('#workChips .form-chip').forEach(c=>c.classList.remove('selected'));
+    }
+    document.getElementById('workModalOverlay').classList.add('open');
+    document.getElementById('workModalSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+}
+function closeWorkForm(){document.getElementById('workModalOverlay').classList.remove('open');document.getElementById('workModalSheet').classList.remove('open');document.getElementById('workModalSheet').style.transform='';document.body.style.overflow='';editingWorkDate=null;editingWorkSeason=null;}
+document.querySelectorAll('#workChips .form-chip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+        document.querySelectorAll('#workChips .form-chip').forEach(c=>c.classList.remove('selected'));
+        chip.classList.add('selected');
+        selectedWorkType=chip.dataset.value;
+        if(selectedWorkType==='Своё'){document.getElementById('workCustomName').style.display='block';document.getElementById('workCustomName').focus();document.getElementById('workSubmit').disabled=true;}
+        else{document.getElementById('workCustomName').style.display='none';document.getElementById('workSubmit').disabled=false;}
+    });
+});
+document.getElementById('workCustomName').addEventListener('input',(e)=>{document.getElementById('workSubmit').disabled=!e.target.value.trim();});
+function submitWork(){
+    const{season}=getCurrentSeason();
+    const now=new Date();
+    let name=selectedWorkType;
+    if(name==='Своё')name=document.getElementById('workCustomName').value.trim();
+    if(!name)return;
+    if(editingWorkDate){
+        const arr=APP_DATA.work.seasons[editingWorkSeason]||[];
+        const idx=arr.findIndex(w=>w.date===editingWorkDate);
+        if(idx!==-1){arr[idx].name=name;arr[idx].type=selectedWorkType;}
+        const histIdx=APP_DATA.history.findIndex(h=>h.kind==='work'&&h.date===editingWorkDate);
+        if(histIdx!==-1){APP_DATA.history[histIdx].name=name;APP_DATA.history[histIdx].type=selectedWorkType;}
+    }else{
+        const record={date:now.toISOString(),dateStr:formatDate(now),timeStr:formatDateTime(now),name:name,type:selectedWorkType};
+        if(!APP_DATA.work.seasons[season.number])APP_DATA.work.seasons[season.number]=[];
+        APP_DATA.work.seasons[season.number].push(record);
+        APP_DATA.history.push({kind:'work',season:season.number,...record});
+        const newCount=APP_DATA.work.seasons[season.number].length;
+        if(newCount===24){addNotification('score','Норма тренировок выполнена','+1 балл за 24 тренировки в сезоне '+season.number);}
+        else if(newCount>30 && (newCount-30)%2===1){addNotification('score','Сверхнорма','+1 балл за '+newCount+' тренировок в сезоне '+season.number);}
+    }
+    saveData(APP_DATA);
+    closeWorkForm();
+    recalcAllScores();
+    updateUIFromData();
+    if(document.getElementById('historyModalOverlay').classList.contains('open'))renderHistory();
+}
+function editWork(dateStr,seasonNum){
+    const arr=APP_DATA.work.seasons[seasonNum]||[];
+    const rec=arr.find(w=>w.date===dateStr);
+    if(!rec)return;
+    editingWorkDate=dateStr;editingWorkSeason=seasonNum;selectedWorkType=rec.type;
+    document.getElementById('workDate').value=rec.dateStr||formatDate(new Date(rec.date));
+    document.querySelectorAll('#workChips .form-chip').forEach(c=>{c.classList.toggle('selected',c.dataset.value===rec.type);});
+    if(rec.type==='Своё'){document.getElementById('workCustomName').style.display='block';document.getElementById('workCustomName').value=rec.name;}
+    else{document.getElementById('workCustomName').style.display='none';document.getElementById('workCustomName').value='';}
+    document.getElementById('workSubmit').disabled=false;
+    document.getElementById('workModalTitle').textContent='Редактировать тренировку';
+    document.getElementById('workModalOverlay').classList.add('open');
+    document.getElementById('workModalSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+}
+
+// =========================================
+// BOOK
+// =========================================
+let editingBookDate=null;
+let editingBookSeason=null;
+function openBookForm(){
+    document.getElementById('bookModalTitle').textContent=editingBookDate?'Редактировать книгу':'Новая книга';
+    document.getElementById('bookDate').value=formatDate(new Date());
+    if(!editingBookDate){
+        document.getElementById('bookName').value='';
+        document.getElementById('bookPages').value='';
+        document.getElementById('bookSubmit').disabled=true;
+    }
+    document.getElementById('bookWarning').style.display='none';
+    document.getElementById('bookModalOverlay').classList.add('open');
+    document.getElementById('bookModalSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+    checkBookForm();
+}
+function closeBookForm(){document.getElementById('bookModalOverlay').classList.remove('open');document.getElementById('bookModalSheet').classList.remove('open');document.getElementById('bookModalSheet').style.transform='';document.body.style.overflow='';editingBookDate=null;editingBookSeason=null;}
+function checkBookForm(){
+    const name=document.getElementById('bookName').value.trim();
+    const pages=parseInt(document.getElementById('bookPages').value);
+    const btn=document.getElementById('bookSubmit');
+    const warn=document.getElementById('bookWarning');
+    if(!name||!pages||pages<1){btn.disabled=true;warn.style.display='none';return;}
+    const now=new Date();
+    const monthKey=getMonthKey(now);
+    const{season}=getCurrentSeason();
+    let pagesInMonth=0;
+    (APP_DATA.book.seasons[season.number]||[]).forEach(b=>{if(getMonthKey(b.date)===monthKey)pagesInMonth+=(b.pages||0);});
+    if(editingBookDate){
+        const oldMonthKey=getMonthKey(editingBookDate);
+        if(oldMonthKey===monthKey){
+            const old=(APP_DATA.book.seasons[editingBookSeason]||[]).find(b=>b.date===editingBookDate);
+            if(old)pagesInMonth-=(old.pages||0);
+        }
+    }
+    if(pagesInMonth+pages>MAX_PAGES_PER_MONTH){
+        const remaining=Math.max(0,MAX_PAGES_PER_MONTH-pagesInMonth);
+        warn.textContent='Лимит '+MAX_BOOKS_PER_MONTH+' книги в месяц ('+MAX_PAGES_PER_MONTH+' стр). Уже внесено: '+pagesInMonth+' стр. Можно добавить: '+remaining+' стр.';
+        warn.style.display='block';
+        btn.disabled=true;
+        return;
+    }
+    warn.style.display='none';
+    btn.disabled=false;
+}
+document.getElementById('bookName').addEventListener('input',checkBookForm);
+document.getElementById('bookPages').addEventListener('input',checkBookForm);
+function submitBook(){
+    const{season}=getCurrentSeason();
+    const now=new Date();
+    const name=document.getElementById('bookName').value.trim();
+    const pages=parseInt(document.getElementById('bookPages').value);
+    if(!name||pages<1)return;
+    const monthKey=getMonthKey(now);
+    let pagesInMonth=0;
+    (APP_DATA.book.seasons[season.number]||[]).forEach(b=>{if(getMonthKey(b.date)===monthKey)pagesInMonth+=(b.pages||0);});
+    if(editingBookDate){
+        const oldMonthKey=getMonthKey(editingBookDate);
+        if(oldMonthKey===monthKey){
+            const old=(APP_DATA.book.seasons[editingBookSeason]||[]).find(b=>b.date===editingBookDate);
+            if(old)pagesInMonth-=(old.pages||0);
+        }
+    }
+    if(pagesInMonth+pages>MAX_PAGES_PER_MONTH){
+        const remaining=Math.max(0,MAX_PAGES_PER_MONTH-pagesInMonth);
+        alert('Лимит '+MAX_BOOKS_PER_MONTH+' книги в месяц ('+MAX_PAGES_PER_MONTH+' стр). Можно добавить: '+remaining+' стр.');
+        return;
+    }
+    const booksBefore=calcBooksInMonth(season.number,monthKey).books;
+    if(editingBookDate){
+        const arr=APP_DATA.book.seasons[editingBookSeason]||[];
+        const idx=arr.findIndex(b=>b.date===editingBookDate);
+        if(idx!==-1){arr[idx].name=name;arr[idx].pages=pages;}
+        const histIdx=APP_DATA.history.findIndex(h=>h.kind==='book'&&h.date===editingBookDate);
+        if(histIdx!==-1){APP_DATA.history[histIdx].name=name;APP_DATA.history[histIdx].pages=pages;}
+    }else{
+        const record={date:now.toISOString(),dateStr:formatDate(now),timeStr:formatDateTime(now),name:name,pages:pages};
+        if(!APP_DATA.book.seasons[season.number])APP_DATA.book.seasons[season.number]=[];
+        APP_DATA.book.seasons[season.number].push(record);
+        APP_DATA.history.push({kind:'book',season:season.number,...record});
+    }
+    const afterData=calcBooksInMonth(season.number,monthKey);
+    const deltaBooks=afterData.books-booksBefore;
+    const deltaPoints=deltaBooks*2;
+    const remaining=Math.max(0,MAX_PAGES_PER_MONTH-afterData.pages);
+    const burned=Math.max(0,afterData.pages-MAX_PAGES_PER_MONTH);
+    let notifText='';
+    if(deltaBooks>0)notifText='+'+deltaPoints+' балл'+(deltaPoints>1?'а':'')+' за '+deltaBooks+' кн. ('+pages+' стр). За месяц: '+afterData.pages+' стр = '+afterData.books+' кн.';
+    else notifText='0 баллов ('+pages+' стр). За месяц: '+afterData.pages+' стр = '+afterData.books+' кн.';
+    if(remaining>0)notifText+=' До лимита: '+remaining+' стр.';
+    if(burned>0)notifText+=' Сгорело: '+burned+' стр.';
+    addNotification('score','Книга добавлена',notifText);
+    saveData(APP_DATA);
+    closeBookForm();
+    recalcAllScores();
+    updateUIFromData();
+    if(document.getElementById('historyModalOverlay').classList.contains('open'))renderHistory();
+}
+function editBook(dateStr,seasonNum){
+    const arr=APP_DATA.book.seasons[seasonNum]||[];
+    const rec=arr.find(b=>b.date===dateStr);
+    if(!rec)return;
+    editingBookDate=dateStr;editingBookSeason=seasonNum;
+    document.getElementById('bookDate').value=rec.dateStr||formatDate(new Date(rec.date));
+    document.getElementById('bookName').value=rec.name;
+    document.getElementById('bookPages').value=rec.pages;
+    document.getElementById('bookSubmit').disabled=false;
+    document.getElementById('bookModalTitle').textContent='Редактировать книгу';
+    document.getElementById('bookModalOverlay').classList.add('open');
+    document.getElementById('bookModalSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+    checkBookForm();
+}
+
+// =========================================
+// MONEY
+// =========================================
+function openMoneyForm(){
+    document.getElementById('moneyDate').value=formatDate(new Date());
+    document.getElementById('moneyAmount').value='';
+    document.getElementById('moneySubmit').disabled=true;
+    const warn=document.getElementById('moneyWarning');
+    const now=new Date();
+    const inChallenge=now.getFullYear()===2027 && now>=new Date(2027,0,1) && now<=new Date(2027,11,31,23,59,59);
+    if(!inChallenge){warn.textContent='Внесение доступно только в период челленджа.';warn.style.display='block';}
+    else if(!isMoneyReportAllowed()){warn.textContent='Внесение доступно только 30-го числа месяца.';warn.style.display='block';}
+    else warn.style.display='none';
+    document.getElementById('moneyModalOverlay').classList.add('open');
+    document.getElementById('moneyModalSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+}
+function closeMoneyForm(){document.getElementById('moneyModalOverlay').classList.remove('open');document.getElementById('moneyModalSheet').classList.remove('open');document.getElementById('moneyModalSheet').style.transform='';document.body.style.overflow='';}
+document.getElementById('moneyAmount').addEventListener('input',(e)=>{
+    const now=new Date();
+    const inChallenge=now.getFullYear()===2027 && now>=new Date(2027,0,1) && now<=new Date(2027,11,31,23,59,59);
+    const ok=inChallenge && isMoneyReportAllowed() && parseInt(e.target.value)>0;
+    document.getElementById('moneySubmit').disabled=!ok;
+});
+function submitMoney(){
+    const now=new Date();
+    const inChallenge=now.getFullYear()===2027 && now>=new Date(2027,0,1) && now<=new Date(2027,11,31,23,59,59);
+    if(!(inChallenge && isMoneyReportAllowed()))return;
+    const amount=parseInt(document.getElementById('moneyAmount').value);
+    if(!amount||amount<=0)return;
+    const monthKey=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    if(!APP_DATA.money.monthly)APP_DATA.money.monthly={};
+    if(!APP_DATA.money.history)APP_DATA.money.history=[];
+    APP_DATA.money.monthly[monthKey]=amount;
+    APP_DATA.money.total=(APP_DATA.money.total||0)+amount;
+    APP_DATA.money.history.push({date:now.toISOString(),dateStr:formatDate(now),timeStr:formatDateTime(now),amount:amount,monthKey:monthKey});
+    APP_DATA.history.push({kind:'money',date:now.toISOString(),dateStr:formatDate(now),timeStr:formatDateTime(now),amount:amount,monthKey:monthKey});
+    saveData(APP_DATA);
+    addNotification('info','Сумма внесена','+'+amount+' ₽ за '+monthKey);
+    closeMoneyForm();
+    updateUIFromData();
+}
+function checkMoneyNotification(){
+    const now=new Date();
+    if(!(now.getFullYear()===2027 && now>=new Date(2027,0,1) && now<=new Date(2027,11,31,23,59,59)))return;
+    if(!isMoneyReportAllowed())return;
+    if(now.getHours()>=23 && now.getMinutes()>=59)return;
+    const monthKey=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    if(APP_DATA.money.monthly && APP_DATA.money.monthly[monthKey])return;
+    if(APP_DATA.settings.moneyNotifShown===monthKey)return;
+    APP_DATA.settings.moneyNotifShown=monthKey;
+    saveData(APP_DATA);
+    addNotification('reminder','День внесения суммы','Сегодня '+now.getDate()+'-е. Не забудьте внести отложенные средства до 23:59.');
+}
+
+// =========================================
+// GOAL
+// =========================================
+function openGoal(){
+    const hasName=!!APP_DATA.goal.name;
+    const body=document.getElementById('goalModalBody');
+    const title=document.getElementById('goalModalTitle');
+    if(!hasName){
+        title.textContent='Личная цель';
+        body.innerHTML=`<label class="form-label">Название цели на 2027 год</label><input type="text" class="form-input" id="goalInput" placeholder="Введите цель..." value=""><button class="form-submit" id="goalSaveBtn" disabled onclick="saveGoalName()">Сохранить цель</button>`;
+        setTimeout(()=>{const inp=document.getElementById('goalInput');const btn=document.getElementById('goalSaveBtn');inp.addEventListener('input',()=>{btn.disabled=!inp.value.trim();});inp.focus();},50);
+    }else{
+        title.textContent='Личная цель';
+        body.innerHTML=`<div class="goal-current"><div class="goal-current-label">Цель на 2027 год</div><div class="goal-current-name">${escapeHtml(APP_DATA.goal.name)}</div></div><div class="goal-actions"><button class="goal-action done" onclick="setGoalDone(true)"><span>Выполнена</span><span class="goal-action-points plus">+7 баллов</span></button><button class="goal-action fail" onclick="setGoalDone(false)"><span>Не выполнена</span><span class="goal-action-points zero">0 баллов</span></button></div><button class="form-submit" style="background:#2c2c2e;box-shadow:none;" onclick="resetGoalName()">Изменить название</button>`;
+    }
+    document.getElementById('goalModalOverlay').classList.add('open');
+    document.getElementById('goalModalSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+}
+function closeGoal(){document.getElementById('goalModalOverlay').classList.remove('open');document.getElementById('goalModalSheet').classList.remove('open');document.getElementById('goalModalSheet').style.transform='';document.body.style.overflow='';}
+function saveGoalName(){const v=document.getElementById('goalInput').value.trim();if(!v)return;APP_DATA.goal.name=v;saveData(APP_DATA);closeGoal();recalcAllScores();updateUIFromData();}
+function setGoalDone(done){const wasDone=APP_DATA.goal.done;APP_DATA.goal.done=done;saveData(APP_DATA);closeGoal();recalcAllScores();updateUIFromData();if(done===true && wasDone!==true)addNotification('score','Личная цель выполнена','+7 баллов за выполнение личной цели');}
+function resetGoalName(){if(!confirm('Изменить название цели?'))return;APP_DATA.goal.name=null;APP_DATA.goal.done=null;saveData(APP_DATA);closeGoal();recalcAllScores();openGoal();updateUIFromData();}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// =========================================
+// TASK (СЕЗОННЫЕ ЗАДАНИЯ)
+// =========================================
+function openTaskPanel(){
+    const body=document.getElementById('taskModalBody');
+    const title=document.getElementById('taskModalTitle');
+    if(!APP_DATA.tasks.pool){
+        title.textContent='Заполнить задания';
+        let html=`<div style="color:#8e8e93;font-size:12px;line-height:1.5;margin-bottom:14px;">Впишите по 3 задания для каждого уровня. Эти задания будут использоваться в челлендже.</div>`;
+        for(let lv=1;lv<=4;lv++){
+            html+=`<div class="task-level-group"><div class="task-level-title"><span>Уровень ${lv}</span><span class="task-level-badge" style="background:${LEVEL_COLORS[lv]};">+${lv}</span></div>`;
+            for(let i=0;i<3;i++){
+                html+=`<input type="text" class="form-input" id="taskInput_${lv}_${i}" placeholder="Задание ${i+1}" style="margin-bottom:6px;">`;
+            }
+            html+=`</div>`;
+        }
+        html+=`<button class="form-submit" onclick="saveTaskPool()">Сохранить задания</button>`;
+        body.innerHTML=html;
+    }else{
+        const{season}=getCurrentSeason();
+        const chosen=APP_DATA.tasks.chosen[season.number];
+        const completed=APP_DATA.tasks.completed[season.number];
+        if(chosen && completed!==null){
+            title.textContent='Сезонное задание';
+            let html=`<div class="goal-current"><div class="goal-current-label">Уровень ${chosen.level}</div><div class="goal-current-name">${escapeHtml(chosen.name)}</div></div>`;
+            html+=`<div style="color:#8e8e93;font-size:12px;text-align:center;margin-bottom:8px;">Баллы: ${chosen.points>0?'+':''}${chosen.points} | Отметка: ${completed?'Выполнено':'Не выполнено'}</div>`;
+            html+=`<button class="task-btn" onclick="resetTaskCompletion()">Изменить отметку</button>`;
+            body.innerHTML=html;
+        }else if(chosen){
+            title.textContent='Сезонное задание';
+            let html=`<div class="goal-current"><div class="goal-current-label">Уровень ${chosen.level}</div><div class="goal-current-name">${escapeHtml(chosen.name)}</div></div>`;
+            html+=`<div style="color:#8e8e93;font-size:12px;text-align:center;margin-bottom:14px;">Баллы за выполнение: +${chosen.points}</div>`;
+            html+=`<button class="goal-action done" onclick="markTask(true)" style="width:100%;margin-bottom:8px;"><span>Выполнено</span><span class="goal-action-points plus">+${chosen.points}</span></button>`;
+            html+=`<button class="goal-action fail" onclick="markTask(false)" style="width:100%;"><span>Не выполнено</span><span class="goal-action-points zero">−1</span></button>`;
+            body.innerHTML=html;
+        }else{
+            title.textContent='Выбор задания';
+            let html=`<div style="color:#8e8e93;font-size:12px;line-height:1.5;margin-bottom:14px;">Выберите одно задание на сезон ${season.number}. После выбора остальные два задания уровня станут недоступны.</div>`;
+            for(let lv=1;lv<=4;lv++){
+                html+=`<div class="task-level-group"><div class="task-level-title"><span>Уровень ${lv}</span><span class="task-level-badge" style="background:${LEVEL_COLORS[lv]};">+${lv}</span></div>`;
+                const taken=APP_DATA.tasks.taken[season.number]||[];
+                for(let i=0;i<3;i++){
+                    const taskName=APP_DATA.tasks.pool[lv][i];
+                    const takenKey=`${lv}_${i}`;
+                    const isTaken=taken.includes(takenKey);
+                    html+=`<div class="task-item ${isTaken?'taken':''}" onclick="${isTaken?'':'selectTask('+lv+','+i+')'}"><span class="task-item-name">${escapeHtml(taskName)}</span><span class="task-item-points">${isTaken?'занято':'+'+lv}</span></div>`;
+                }
+                html+=`</div>`;
+            }
+            body.innerHTML=html;
+        }
+    }
+    document.getElementById('taskModalOverlay').classList.add('open');
+    document.getElementById('taskModalSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+}
+function closeTaskPanel(){document.getElementById('taskModalOverlay').classList.remove('open');document.getElementById('taskModalSheet').classList.remove('open');document.getElementById('taskModalSheet').style.transform='';document.body.style.overflow='';}
+function saveTaskPool(){
+    const pool={1:[],2:[],3:[],4:[]};
+    for(let lv=1;lv<=4;lv++){
+        for(let i=0;i<3;i++){
+            const v=document.getElementById(`taskInput_${lv}_${i}`).value.trim();
+            if(!v){alert('Заполните все 12 заданий');return;}
+            pool[lv].push(v);
+        }
+    }
+    APP_DATA.tasks.pool=pool;
+    saveData(APP_DATA);
+    addNotification('info','Задания сохранены','12 заданий готовы к выбору.');
+    closeTaskPanel();
+    updateTaskPanel();
+}
+function selectTask(level,index){
+    const{season}=getCurrentSeason();
+    const name=APP_DATA.tasks.pool[level][index];
+    APP_DATA.tasks.chosen[season.number]={level, name, points:level, index};
+    if(!APP_DATA.tasks.taken[season.number])APP_DATA.tasks.taken[season.number]=[];
+    APP_DATA.tasks.taken[season.number].push(`${level}_${index}`);
+    saveData(APP_DATA);
+    addNotification('score','Задание выбрано','Уровень '+level+' — "'+name+'" (+'+level+' баллов)');
+    closeTaskPanel();
+    recalcAllScores();
+    updateUIFromData();
+}
+function markTask(done){
+    const{season}=getCurrentSeason();
+    const chosen=APP_DATA.tasks.chosen[season.number];
+    if(!chosen)return;
+    APP_DATA.tasks.completed[season.number]=done;
+    saveData(APP_DATA);
+    const pts=done?chosen.points:-1;
+    addNotification('score','Задание отмечено',(done?'Выполнено':'Не выполнено')+' — '+(pts>0?'+':'')+pts+' балл(ов)');
+    closeTaskPanel();
+    recalcAllScores();
+    updateUIFromData();
+}
+function resetTaskCompletion(){
+    const{season}=getCurrentSeason();
+    APP_DATA.tasks.completed[season.number]=null;
+    saveData(APP_DATA);
+    closeTaskPanel();
+    recalcAllScores();
+    updateUIFromData();
+}
+function checkTaskNotification(){
+    const now=new Date();
+    if(now.getFullYear()!==2027)return;
+    // Начало сезона — выбрать задание
+    for(const s of SEASONS){
+        const isStartDay=now.getFullYear()===s.start.getFullYear() && now.getMonth()===s.start.getMonth() && now.getDate()===s.start.getDate();
+        if(isStartDay && APP_DATA.tasks.pool && !APP_DATA.tasks.chosen[s.number]){
+            const key='pick_'+s.number;
+            if(APP_DATA.settings.taskPickNotifShown[key])continue;
+            APP_DATA.settings.taskPickNotifShown[key]=true;
+            saveData(APP_DATA);
+            addNotification('reminder','Сезон '+s.number+' начался','Выберите сезонное задание.');
+            return;
+        }
+    }
+    // Конец сезона — отметить задание
+    for(const s of SEASONS){
+        const isEndDay=now.getFullYear()===s.end.getFullYear() && now.getMonth()===s.end.getMonth() && now.getDate()===s.end.getDate();
+        if(!isEndDay)continue;
+        const chosen=APP_DATA.tasks.chosen[s.number];
+        const completed=APP_DATA.tasks.completed[s.number];
+        if(chosen && completed===null){
+            const key='task_'+s.number;
+            if(APP_DATA.settings.taskNotifShown[key])continue;
+            APP_DATA.settings.taskNotifShown[key]=true;
+            saveData(APP_DATA);
+            addNotification('reminder','Сезон '+s.number+' завершён','Отметьте выполнение сезонного задания: "'+chosen.name+'"');
+            openTaskPanel();
+            return;
+        }
+    }
+}
+
+// =========================================
+// MONEY YEAR
+// =========================================
+function openMoneyYear(){
+    document.getElementById('moneyYearOverlay').classList.add('open');
+    document.getElementById('moneyYearSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+}
+function closeMoneyYear(){
+    document.getElementById('moneyYearOverlay').classList.remove('open');
+    document.getElementById('moneyYearSheet').classList.remove('open');
+    document.body.style.overflow='';
+}
+function selectMoneyYear(type,btn){
+    if(APP_DATA.moneyYear)return;
+    document.querySelectorAll('.money-year-option').forEach(o=>o.classList.remove('selected'));
+    btn.classList.add('selected');
+    APP_DATA.moneyYear=type;
+    saveData(APP_DATA);
+    let pts=0,label='';
+    if(type==='full'){pts=5;label='Выполнил';}
+    else if(type==='partial'){pts=2;label='Выполнил со штрафом';}
+    else if(type==='penalty'){pts=-3;label='Штраф';}
+    else if(type==='notfirst'){pts=0;label='Не первое место';}
+    addNotification('score','Финансы: '+label,(pts>0?'+':'')+pts+' балл(ов)');
+    recalcAllScores();
+    updateUIFromData();
+    setTimeout(closeMoneyYear,400);
+}
+function checkMoneyYear(){
+    const now=new Date();
+    if(APP_DATA.moneyYear)return;
+    if(now.getFullYear()===2027 && now.getMonth()===11 && now.getDate()===31){
+        if(!APP_DATA.settings.moneyYearNotifShown){
+            APP_DATA.settings.moneyYearNotifShown=true;
+            saveData(APP_DATA);
+            addNotification('reminder','Итог по финансам','Выберите, как вы выступили по финансам за год.');
+            openMoneyYear();
+        }
+    }
+    if(now.getFullYear()>2027 || (now.getFullYear()===2028)){
+        if(!document.getElementById('moneyYearOverlay').classList.contains('open')){
+            openMoneyYear();
+        }
+    }
+}
+
+// =========================================
+// SUMMARY
+// =========================================
+function buildSummary(){
+    let bestSeasonScore=null,bestSeasonScoreNum=0;
+    for(let s=1;s<=4;s++){
+        const sc=APP_DATA.scores.seasons[s]||0;
+        if(bestSeasonScore===null || sc>bestSeasonScore){bestSeasonScore=sc;bestSeasonScoreNum=s;}
+    }
+    let bestBookSeason=0,bestBookNum=0;
+    for(let s=1;s<=4;s++){
+        const b=calcBooksInSeason(s);
+        if(b>bestBookNum){bestBookNum=b;bestBookSeason=s;}
+    }
+    let bestWorkSeason=0,bestWorkNum=0;
+    for(let s=1;s<=4;s++){
+        const w=(APP_DATA.work.seasons[s]||[]).length;
+        if(w>bestWorkNum){bestWorkNum=w;bestWorkSeason=s;}
+    }
+    const totalBooks=calcBooksAllTime();
+    let totalWork=0;
+    for(let s=1;s<=4;s++)totalWork+=(APP_DATA.work.seasons[s]||[]).length;
+    const totalScore=APP_DATA.scores.total||0;
+    let tasksDone=0;
+    let taskLines='';
+    for(let s=1;s<=4;s++){
+        const ch=APP_DATA.tasks.chosen[s];
+        const cp=APP_DATA.tasks.completed[s];
+        let status='—';
+        if(ch){
+            if(cp===true){status='Выполнено';tasksDone++;}
+            else if(cp===false)status='Не выполнено';
+            else status='Не отмечено';
+        }else status='Не выбрано';
+        taskLines+=`<div class="summary-mini"><div class="summary-mini-label">Сезон ${s}</div><div style="color:#fff;font-size:13px;font-weight:600;margin-bottom:2px;">${ch?escapeHtml(ch.name):'—'}</div><div style="color:#8e8e93;font-size:11px;">${ch?'Уровень '+ch.level+' · ':''}${status}</div></div>`;
+    }
+    let html='';
+    html+=`<div class="summary-card"><div class="summary-card-label">Общий балл за год</div><div class="summary-card-main summary-card-accent">${totalScore}</div><div class="summary-card-sub">Итог по всем сезонам</div></div>`;
+    html+=`<div class="summary-grid">`;
+    html+=`<div class="summary-mini"><div class="summary-mini-label">Тренировок</div><div class="summary-mini-value">${totalWork}</div></div>`;
+    html+=`<div class="summary-mini"><div class="summary-mini-label">Книг</div><div class="summary-mini-value">${totalBooks}</div></div>`;
+    html+=`</div>`;
+    html+=`<div class="summary-card"><div class="summary-card-label">Лучший сезон по баллам</div><div class="summary-card-main">Сезон ${bestSeasonScoreNum||'—'}</div><div class="summary-card-sub">${bestSeasonScore!==null?bestSeasonScore+' баллов':'—'}</div></div>`;
+    html+=`<div class="summary-card"><div class="summary-card-label">Лучший сезон по книгам</div><div class="summary-card-main">Сезон ${bestBookSeason||'—'}</div><div class="summary-card-sub">${bestBookNum} книг</div></div>`;
+    html+=`<div class="summary-card"><div class="summary-card-label">Лучший сезон по тренировкам</div><div class="summary-card-main">Сезон ${bestWorkSeason||'—'}</div><div class="summary-card-sub">${bestWorkNum} тренировок</div></div>`;
+    html+=`<div class="summary-card"><div class="summary-card-label">Сезонные задания</div><div class="summary-card-main">${tasksDone} из 4</div><div class="summary-card-sub">Выполнено</div></div>`;
+    html+=`<div class="summary-grid">${taskLines}</div>`;
+    return html;
+}
+function openSummary(){
+    document.getElementById('summaryBody').innerHTML=buildSummary();
+    document.getElementById('summaryModalOverlay').classList.add('open');
+    document.getElementById('summaryModalSheet').classList.add('open');
+    document.body.style.overflow='hidden';
+}
+function closeSummary(){
+    document.getElementById('summaryModalOverlay').classList.remove('open');
+    document.getElementById('summaryModalSheet').classList.remove('open');
+    document.getElementById('summaryModalSheet').style.transform='';
+    document.body.style.overflow='';
+    const now=new Date();
+    if(now>=new Date(2028,0,1)){APP_DATA.summaryShown=true;saveData(APP_DATA);}
+}
+function checkSummaryAutoOpen(){
+    const now=new Date();
+    if(now<new Date(2028,0,1))return;
+    if(APP_DATA.summaryShown)return;
+    if(document.getElementById('summaryModalOverlay').classList.contains('open'))return;
+    openSummary();
+}
+
+// =========================================
+// HISTORY
+// =========================================
+let currentHistoryTab='work';
+function openHistory(){document.getElementById('historyModalOverlay').classList.add('open');document.getElementById('historyModalSheet').classList.add('open');document.body.style.overflow='hidden';renderHistory();}
+function closeHistory(){document.getElementById('historyModalOverlay').classList.remove('open');document.getElementById('historyModalSheet').classList.remove('open');document.getElementById('historyModalSheet').style.transform='';document.body.style.overflow='';}
+function switchHistoryTab(tab,btn){currentHistoryTab=tab;document.querySelectorAll('.history-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderHistory();}
+function renderHistory(){
+    const body=document.getElementById('historyBody');
+    let html='';
+    if(currentHistoryTab==='work'){
+        const allWork=[];
+        for(let s=1;s<=4;s++){(APP_DATA.work.seasons[s]||[]).forEach(w=>allWork.push({...w,season:s}));}
+        allWork.sort((a,b)=>new Date(b.date)-new Date(a.date));
+        html+=`<div class="history-counter"><span class="history-counter-label">Всего тренировок за год</span><span class="history-counter-value">${allWork.length}</span></div>`;
+        if(allWork.length===0)html+=`<div class="history-empty">Пока нет записей</div>`;
+        allWork.forEach((w)=>{
+            html+=`<div class="history-item"><div class="history-item-actions"><button class="history-action-btn edit" onclick="event.stopPropagation();editWork('${w.date}',${w.season})"><i class="fa-solid fa-pen"></i>Изменить</button><button class="history-action-btn delete" onclick="event.stopPropagation();deleteWork('${w.date}',${w.season})"><i class="fa-solid fa-trash"></i>Удалить</button></div><div class="history-item-content"><div class="history-item-info"><div class="history-item-title">${escapeHtml(w.name)}</div><div class="history-item-meta">${w.timeStr} · Сезон ${w.season}</div></div></div></div>`;
+        });
+    }else if(currentHistoryTab==='book'){
+        const allBooks=[];
+        for(let s=1;s<=4;s++){(APP_DATA.book.seasons[s]||[]).forEach(b=>allBooks.push({...b,season:s}));}
+        allBooks.sort((a,b)=>new Date(b.date)-new Date(a.date));
+        const totalBooksAll=calcBooksAllTime();
+        html+=`<div class="history-counter"><span class="history-counter-label">Всего книг за год</span><span class="history-counter-value">${totalBooksAll}</span></div>`;
+        if(allBooks.length===0)html+=`<div class="history-empty">Пока нет записей</div>`;
+        allBooks.forEach((b)=>{
+            const books=Math.floor((b.pages||0)/PAGES_PER_BOOK);
+            html+=`<div class="history-item"><div class="history-item-actions"><button class="history-action-btn edit" onclick="event.stopPropagation();editBook('${b.date}',${b.season})"><i class="fa-solid fa-pen"></i>Изменить</button><button class="history-action-btn delete" onclick="event.stopPropagation();deleteBook('${b.date}',${b.season})"><i class="fa-solid fa-trash"></i>Удалить</button></div><div class="history-item-content"><div class="history-item-info"><div class="history-item-title">${escapeHtml(b.name)}</div><div class="history-item-meta">${b.timeStr} · ${b.pages} стр · Сезон ${b.season}</div></div><div class="history-item-value">${books}</div></div></div>`;
+        });
+    }else if(currentHistoryTab==='money'){
+        const allMoney=(APP_DATA.money.history||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+        html+=`<div class="history-counter"><span class="history-counter-label">Общая сумма за год</span><span class="history-counter-value">${APP_DATA.money.total||0} ₽</span></div>`;
+        if(allMoney.length===0)html+=`<div class="history-empty">Пока нет записей</div>`;
+        allMoney.forEach((m)=>{
+            html+=`<div class="history-item" style="background:#1c1c1e;"><div class="history-item-content"><div class="history-item-info"><div class="history-item-title">${m.monthKey}</div><div class="history-item-meta">${m.timeStr}</div></div><div class="history-item-value">${m.amount} ₽</div></div></div>`;
+        });
+    }
+    body.innerHTML=html;
+    if(currentHistoryTab!=='money')setupHistorySwipe();
+}
+function setupHistorySwipe(){
+    const items=document.querySelectorAll('.history-item');
+    let openItem=null;
+    items.forEach(item=>{
+        const content=item.querySelector('.history-item-content');
+        if(!content)return;
+        let startX=0,startY=0,isHorizontal=null;
+        const threshold=40,openWidth=160;
+        item.addEventListener('touchstart',(e)=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;isHorizontal=null;content.style.transition='none';},{passive:true});
+        item.addEventListener('touchmove',(e)=>{
+            const x=e.touches[0].clientX,y=e.touches[0].clientY,dx=x-startX,dy=y-startY;
+            if(isHorizontal===null && (Math.abs(dx)>8||Math.abs(dy)>8))isHorizontal=Math.abs(dx)>Math.abs(dy);
+            if(isHorizontal===false)return;
+            if(isHorizontal===true){
+                const base=item.classList.contains('swiped')?-openWidth:0;
+                let offset=base+dx;if(offset>0)offset=0;if(offset<-openWidth)offset=-openWidth;
+                content.style.transform=`translateX(${offset}px)`;
+                if(e.cancelable)e.preventDefault();
+            }
+        },{passive:false});
+        item.addEventListener('touchend',(e)=>{
+            content.style.transition='';
+            const endX=e.changedTouches[0].clientX,totalDx=endX-startX;
+            if(isHorizontal===true && Math.abs(totalDx)>threshold){
+                if(totalDx<0){
+                    if(openItem && openItem!==item){openItem.classList.remove('swiped');const oc=openItem.querySelector('.history-item-content');if(oc)oc.style.transform='';}
+                    item.classList.add('swiped');openItem=item;
+                }else{item.classList.remove('swiped');if(openItem===item)openItem=null;}
+            }
+            content.style.transform='';startX=0;startY=0;isHorizontal=null;
+        });
+        item.addEventListener('touchcancel',()=>{content.style.transform='';content.style.transition='';startX=0;startY=0;isHorizontal=null;});
+    });
+    document.querySelectorAll('.history-action-btn').forEach(btn=>{btn.addEventListener('touchstart',(e)=>{e.stopPropagation();},{passive:true});btn.addEventListener('click',(e)=>{e.stopPropagation();});});
+}
+function deleteWork(dateStr,seasonNum){
+    if(!confirm('Удалить тренировку?'))return;
+    APP_DATA.work.seasons[seasonNum]=(APP_DATA.work.seasons[seasonNum]||[]).filter(w=>w.date!==dateStr);
+    APP_DATA.history=APP_DATA.history.filter(h=>!(h.kind==='work'&&h.date===dateStr));
+    saveData(APP_DATA);recalcAllScores();renderHistory();updateUIFromData();
+}
+function deleteBook(dateStr,seasonNum){
+    if(!confirm('Удалить книгу?'))return;
+    APP_DATA.book.seasons[seasonNum]=(APP_DATA.book.seasons[seasonNum]||[]).filter(b=>b.date!==dateStr);
+    APP_DATA.history=APP_DATA.history.filter(h=>!(h.kind==='book'&&h.date===dateStr));
+    saveData(APP_DATA);recalcAllScores();renderHistory();updateUIFromData();
+}
+
+// =========================================
+// PLACE
+// =========================================
+let placeModalShown=false;
+function isSeasonEndDay(season){
+    const now=new Date();
+    if(now.getFullYear()!==2027)return false;
+    return now.getFullYear()===season.end.getFullYear() && now.getMonth()===season.end.getMonth() && now.getDate()===season.end.getDate();
+}
+function checkSeasonEndPlace(){
+    for(const s of SEASONS){
+        if(!isSeasonEndDay(s))continue;
+        if(APP_DATA.places[s.number]!==null)continue;
+        const key='season_'+s.number;
+        if(APP_DATA.settings.seasonEndNotifShown[key])continue;
+        APP_DATA.settings.seasonEndNotifShown[key]=true;
+        saveData(APP_DATA);
+        addNotification('place','Сезон '+s.number+' завершён','Укажите место, которое вы заняли по итогам сезона '+s.number+'.');
+        showPlaceModal(s.number);
+        return;
+    }
+}
+function showPlaceModal(seasonNum){if(placeModalShown)return;placeModalShown=true;window._placeSeason=seasonNum;document.getElementById('placeModalOverlay').classList.add('open');document.getElementById('placeModalSheet').classList.add('open');document.body.style.overflow='hidden';}
+function selectPlace(place,btn){
+    const seasonNum=window._placeSeason;
+    if(!seasonNum)return;
+    if(APP_DATA.places[seasonNum]!==null){document.getElementById('placeModalOverlay').classList.remove('open');document.getElementById('placeModalSheet').classList.remove('open');document.body.style.overflow='';placeModalShown=false;return;}
+    document.querySelectorAll('.place-option').forEach(o=>o.classList.remove('selected'));
+    btn.classList.add('selected');
+    APP_DATA.places[seasonNum]=place;
+    saveData(APP_DATA);
+    recalcAllScores();updateUIFromData();
+    let pts=place===1?'+2':place===2?'+1':'−2';
+    addNotification('place',place+' место в сезоне '+seasonNum,pts+' балла за место в сезоне');
+    setTimeout(()=>{document.getElementById('placeModalOverlay').classList.remove('open');document.getElementById('placeModalSheet').classList.remove('open');document.body.style.overflow='';placeModalShown=false;},400);
+}
+
+// =========================================
+// RULES
+// =========================================
+function openRules(e,btn){createRipple(e,btn,'ripple-dark');setTimeout(()=>{document.getElementById('modalOverlay').classList.add('open');document.getElementById('modalSheet').classList.add('open');document.getElementById('modalSheet').style.transform='';document.body.style.overflow='hidden';},100);}
+function closeRules(){document.getElementById('modalOverlay').classList.remove('open');document.getElementById('modalSheet').classList.remove('open');document.getElementById('modalSheet').style.transform='';document.body.style.overflow='';}
+
+// =========================================
+// RIPPLE
+// =========================================
+function createRipple(event,button,className){
+    const ripple=document.createElement('span');
+    ripple.classList.add(className);
+    const rect=button.getBoundingClientRect();
+    const size=Math.max(rect.width,rect.height);
+    const x=event.clientX-rect.left-size/2;
+    const y=event.clientY-rect.top-size/2;
+    ripple.style.width=ripple.style.height=`${size}px`;
+    ripple.style.left=`${x}px`;
+    ripple.style.top=`${y}px`;
+    const existing=button.querySelector(`.${className}`);
+    if(existing)existing.remove();
+    button.appendChild(ripple);
+    setTimeout(()=>ripple.remove(),600);
+}
+
+// =========================================
+// SWIPE для модалок
+// =========================================
+function setupSwipeToClose(sheet,overlay,handle,closeFn){
+    let startY=0,currentY=0,isDragging=false;
+    const threshold=120;
+    function onStart(e){startY=e.type.includes('touch')?e.touches[0].clientY:e.clientY;currentY=startY;isDragging=true;sheet.classList.add('dragging');}
+    function onMove(e){if(!isDragging)return;currentY=e.type.includes('touch')?e.touches[0].clientY:e.clientY;const d=Math.max(0,currentY-startY);sheet.style.transform=`translateX(-50%) translateY(${d}px)`;overlay.style.opacity=1-Math.min(1,d/(sheet.offsetHeight||600))*0.6;if(e.cancelable)e.preventDefault();}
+    function onEnd(){if(!isDragging)return;isDragging=false;sheet.classList.remove('dragging');const d=Math.max(0,currentY-startY);if(d>threshold){sheet.style.transform='';overlay.style.opacity='';closeFn();}else{sheet.style.transform='';overlay.style.opacity='';}startY=0;currentY=0;}
+    handle.addEventListener('touchstart',onStart,{passive:true});handle.addEventListener('touchmove',onMove,{passive:false});handle.addEventListener('touchend',onEnd);handle.addEventListener('touchcancel',onEnd);handle.addEventListener('mousedown',onStart);document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onEnd);
+}
+function setupCenterSwipe(sheetId,overlayId,grabberId,headerId,closeFn){
+    const sheet=document.getElementById(sheetId);
+    const overlay=document.getElementById(overlayId);
+    const handles=[document.getElementById(grabberId),document.getElementById(headerId)].filter(Boolean);
+    let startY=0,currentY=0,isDragging=false;
+    const threshold=80;
+    function onStart(e){startY=e.type.includes('touch')?e.touches[0].clientY:e.clientY;currentY=startY;isDragging=true;sheet.classList.add('dragging');}
+    function onMove(e){if(!isDragging)return;currentY=e.type.includes('touch')?e.touches[0].clientY:e.clientY;const d=Math.max(0,currentY-startY);sheet.style.transform=`translate(-50%, -50%) translateY(${d}px) scale(${Math.max(0.85,1-d/600)})`;overlay.style.opacity=1-Math.min(1,d/300)*0.7;if(e.cancelable)e.preventDefault();}
+    function onEnd(){if(!isDragging)return;isDragging=false;sheet.classList.remove('dragging');const d=Math.max(0,currentY-startY);if(d>threshold){sheet.style.transform='';overlay.style.opacity='';closeFn();}else{sheet.style.transform='';overlay.style.opacity='';}startY=0;currentY=0;}
+    handles.forEach(h=>{h.addEventListener('touchstart',onStart,{passive:true});h.addEventListener('touchmove',onMove,{passive:false});h.addEventListener('touchend',onEnd);h.addEventListener('touchcancel',onEnd);h.addEventListener('mousedown',onStart);});
+    document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onEnd);
+}
+setupSwipeToClose(document.getElementById('modalSheet'),document.getElementById('modalOverlay'),document.getElementById('rulesGrabber'),closeRules);
+setupSwipeToClose(document.getElementById('modalSheet'),document.getElementById('modalOverlay'),document.getElementById('rulesHeader'),closeRules);
+setupSwipeToClose(document.getElementById('historyModalSheet'),document.getElementById('historyModalOverlay'),document.getElementById('historyGrabber'),closeHistory);
+setupSwipeToClose(document.getElementById('historyModalSheet'),document.getElementById('historyModalOverlay'),document.getElementById('historyHeader'),closeHistory);
+setupSwipeToClose(document.getElementById('notifModalSheet'),document.getElementById('notifModalOverlay'),document.getElementById('notifGrabber'),closeNotifications);
+setupSwipeToClose(document.getElementById('notifModalSheet'),document.getElementById('notifModalOverlay'),document.getElementById('notifHeader'),closeNotifications);
+setupSwipeToClose(document.getElementById('summaryModalSheet'),document.getElementById('summaryModalOverlay'),document.getElementById('summaryGrabber'),closeSummary);
+setupSwipeToClose(document.getElementById('summaryModalSheet'),document.getElementById('summaryModalOverlay'),document.getElementById('summaryHeader'),closeSummary);
+setupCenterSwipe('timerModalSheet','timerModalOverlay','timerGrabber','timerHeader',closeTimer);
+setupCenterSwipe('seasonModalSheet','seasonModalOverlay','seasonGrabber','seasonHeader',closeSeason);
+setupCenterSwipe('workModalSheet','workModalOverlay','workGrabber','workHeader',closeWorkForm);
+setupCenterSwipe('bookModalSheet','bookModalOverlay','bookGrabber','bookHeader',closeBookForm);
+setupCenterSwipe('moneyModalSheet','moneyModalOverlay','moneyGrabber','moneyHeader',closeMoneyForm);
+setupCenterSwipe('goalModalSheet','goalModalOverlay','goalGrabber','goalHeader',closeGoal);
+setupCenterSwipe('taskModalSheet','taskModalOverlay','taskGrabber','taskHeader',closeTaskPanel);
+
+// =========================================
+// OFFLINE
+// =========================================
+function checkOnline(){return navigator.onLine;}
+function showOffline(){document.getElementById('offlineOverlay').classList.add('open');document.getElementById('offlineSheet').classList.add('open');}
+function hideOffline(){document.getElementById('offlineOverlay').classList.remove('open');document.getElementById('offlineSheet').classList.remove('open');}
+function retryConnection(){if(checkOnline()){hideOffline();location.reload();}}
+window.addEventListener('online',()=>{hideOffline();});
+window.addEventListener('offline',()=>{showOffline();});
+
+// =========================================
+// RULES TEXT
+// =========================================
+document.getElementById('rulesBody').innerHTML=`
+<h1>CHALLENGE 2027</h1>
+<p class="meta">г. _______________ «___» ____________ 2026 г.</p>
+<div class="participants"><p><strong>УЧАСТНИКИ:</strong></p><p>1. Пушкашу Даниил</p><p>2. Точила Станислав</p><p>3. Хасаналиев Алишер</p></div>
+<p>Участники добровольно принимают условия Челленджа и подтверждают, что понимают порядок начисления баллов, финансовые обязательства, правила отчётности и последствия нарушения правил.</p>
+<div class="section-divider"></div>
+<h2>1. ПРЕДМЕТ И СРОК</h2>
+<p><strong>1.2. Срок проведения Челленджа: с 01.01.2027 по 31.12.2027 включительно.</strong></p>
+<div class="section-divider"></div>
+<h2>2. СТРУКТУРА</h2>
+<ul><li>Сезон 1: 01.01.2027 — 31.03.2027;</li><li>Сезон 2: 01.04.2027 — 30.06.2027;</li><li>Сезон 3: 01.07.2027 — 30.09.2027;</li><li>Сезон 4: 01.10.2027 — 31.12.2027.</li></ul>
+<div class="section-divider"></div>
+<h2>5. ТРЕНИРОВКИ</h2>
+<p>5.1. Баллы за место: 1 — +2; 2 — +1; 3 — −2.</p>
+<p>5.2. Норма: 24 тренировки за сезон. Выполнена: +1. Не выполнена: −3.</p>
+<p>5.3. Сверхнорма: 30+ тренировок. Начиная с 31-й каждые две дают +1.</p>
+<div class="section-divider"></div>
+<h2>6. КНИГИ</h2>
+<p>6.1. Книга — 200+ страниц. 6.2. +2 балла за книгу. 6.3. Не более 3 книг в месяц (600 стр).</p>
+<p>6.4. Норма 1 книга в месяц. Не выполнена: −1.</p>
+<div class="section-divider"></div>
+<h2>7. ЛИЧНАЯ ЦЕЛЬ</h2>
+<p>7.6. Выполнена: +7. 7.7. Не выполнена: 0.</p>
+<div class="section-divider"></div>
+<h2>8. СЕЗОННЫЕ ЗАДАНИЯ</h2>
+<p>8.1. За год — 12 сезонных заданий. 8.3. 4 уровня, в каждом по 3 задания.</p>
+<p>8.4. Уровни: 1 → +1, 2 → +2, 3 → +3, 4 → +4.</p>
+<p>8.11. Невыполнение: −1.</p>
+<div class="section-divider"></div>
+<h2>9. ФИНАНСЫ</h2>
+<p>9.6. Отчёт 30 числа каждого месяца. 9.8. Всего 12 контрольных точек.</p>
+<div class="section-divider"></div>
+<h2>10. ПРИЗОВОЙ ФОНД</h2>
+<p>10.1. Проигравшие платят победителю по 50 000 ₽. 10.2. Общий фонд: 100 000 ₽.</p>
+<div class="section-divider"></div>
+<h2>12. ДОСРОЧНЫЙ ВЫХОД</h2>
+<p>12.2. Штраф: 30 000 ₽.</p>
+<div class="section-divider"></div>
+<h2>19. ПОДПИСИ УЧАСТНИКОВ</h2>
+<div class="participants"><p><strong>УЧАСТНИК №1</strong> — Пушкашу Даниил</p></div>
+<div class="participants"><p><strong>УЧАСТНИК №2</strong> — Точила Станислав</p></div>
+<div class="participants"><p><strong>УЧАСТНИК №3</strong> — Хасаналиев Алишер</p></div>
+`;
+
+// =========================================
+// INIT
+// =========================================
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){closeRules();closeTimer();closeSeason();closeWorkForm();closeBookForm();closeMoneyForm();closeHistory();closeGoal();closeNotifications();closeSummary();closeTaskPanel();closeMoneyYear();}});
+setInterval(()=>{updateCurrentDate();updateTimerDisplay();updateSeasonUI();checkSeasonEndPlace();checkMoneyNotification();updateMoneyAlert();checkTaskNotification();checkMoneyYear();checkSummaryAutoOpen();updateSummaryButton();},60000);
+
+updateCurrentDate();
+updateTimerDisplay();
+updateSeasonUI();
+updateUIFromData();
+checkSeasonEndPlace();
+checkMoneyNotification();
+checkTaskNotification();
+checkMoneyYear();
+checkSummaryAutoOpen();
+if(!checkOnline())showOffline();
+
+APP_DATA.settings.lastReload=new Date().toISOString();
+saveData(APP_DATA);
+</script>
+</body>
+</html>
